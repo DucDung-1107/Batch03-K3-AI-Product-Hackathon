@@ -1,0 +1,350 @@
+{
+  "format": "hierarchical-mindmap",
+  "version": "2.0",
+  "title": "Agentic AI & ReAct — Day 03",
+  "instructions_for_renderer": {
+    "layout": "radial",
+    "root_position": "center",
+    "branch_style": "curved",
+    "expand_from": "center_outward",
+    "show_fields": ["label"],
+    "use_clue_as": "node_tooltip_or_speaker_note",
+    "use_detail_as": "node_tooltip_or_detail_panel",
+    "color_rule": "inherit_parent_color_unless_color_is_set"
+  },
+  "root": {
+    "id": "root",
+    "label": "AGENTIC AI\n& REACT",
+    "color": "#F59E0B",
+    "clue": "Khi nào LLM cần trở thành Agent, Agent vận hành thế nào, và làm sao xây ReAct an toàn để debug được?",
+    "children": [
+      {
+        "id": "spectrum",
+        "label": "Phổ hệ thống AI",
+        "color": "#22C55E",
+        "clue": "Từ bot cứng đến Agent tự chủ, năng lực và rủi ro tăng theo những nấc nào?",
+        "children": [
+          {"id": "evolution", "label": "Rule Bot → Chatbot → Reactive → Autonomous", "detail": "Thích nghi, tool use, memory và risk đều tăng dần."},
+          {"id": "rule-bot", "label": "Rule-based Bot", "children": [{"id": "rule-ifelse", "label": "If/else cứng"}, {"id": "rule-predictable", "label": "Dự đoán tuyệt đối"}, {"id": "rule-limited", "label": "Ít linh hoạt"}]},
+          {"id": "llm-chatbot", "label": "LLM Chatbot", "children": [{"id": "chat-natural", "label": "Trả lời linh hoạt theo context"}, {"id": "chat-single", "label": "Chủ yếu single-turn"}]},
+          {"id": "reactive-agent", "label": "Reactive Agent", "children": [{"id": "reactive-tools", "label": "Dùng công cụ ngoài"}, {"id": "reactive-loop", "label": "Observe-loop theo bước"}]},
+          {"id": "autonomous-agent", "label": "Autonomous Agent", "children": [{"id": "auto-goal", "label": "Mục tiêu dài hạn"}, {"id": "auto-decisions", "label": "Nhiều quyết định tự chủ"}]},
+          {
+            "id": "agent-definition",
+            "label": "Agent thực sự là gì?",
+            "clue": "Vì sao dùng LLM chưa đủ để gọi là Agent?",
+            "children": [
+              {"id": "agent-decide", "label": "Tự quyết định"},
+              {"id": "agent-act", "label": "Thực thi hành động"},
+              {"id": "agent-observe", "label": "Quan sát phản hồi môi trường"},
+              {"id": "agent-repeat", "label": "Lặp để đạt mục tiêu"}
+            ]
+          },
+          {
+            "id": "comparison",
+            "label": "So sánh nhanh",
+            "children": [
+              {"id": "compare-process", "label": "Xử lý", "children": [{"id": "p-rule", "label": "Bot: if/else"}, {"id": "p-chat", "label": "Chat: sinh theo context"}, {"id": "p-agent", "label": "Agent: Plan → Act → Observe → Adapt"}]},
+              {"id": "compare-memory", "label": "Memory", "children": [{"id": "m-rule", "label": "Bot: gần như không"}, {"id": "m-chat", "label": "Chat: context ngắn hạn"}, {"id": "m-agent", "label": "Agent: ngắn + dài hạn"}]},
+              {"id": "compare-risk", "label": "Risk", "children": [{"id": "r-rule", "label": "Bot: dễ kiểm soát"}, {"id": "r-chat", "label": "Chat: hallucination / format drift"}, {"id": "r-agent", "label": "Agent: tool misuse / loop"}]},
+              {"id": "compare-use", "label": "Use case", "children": [{"id": "u-rule", "label": "IVR · form validation"}, {"id": "u-chat", "label": "FAQ · support cơ bản"}, {"id": "u-agent", "label": "Booking · research · code"}]}
+            ]
+          },
+          {
+            "id": "flight-example",
+            "label": "Ví dụ: tìm vé + thời tiết",
+            "clue": "Cùng một yêu cầu nhiều điều kiện, mỗi hệ thống làm được đến đâu?",
+            "children": [
+              {"id": "ex-query", "label": "HAN → HCM < 2M + hành lý khi mưa"},
+              {"id": "ex-rule", "label": "Bot: menu tĩnh, không có dữ liệu mới"},
+              {"id": "ex-chat", "label": "Chatbot: viết hay, không tự truy vấn giá thật"},
+              {"id": "ex-agent", "label": "Agent: tách 2 nhiệm vụ", "children": [{"id": "ex-flight-tool", "label": "Gọi search flights"}, {"id": "ex-weather-tool", "label": "Gọi weather"}, {"id": "ex-synthesize", "label": "So giá + thời tiết + tổng hợp"}]}
+            ]
+          },
+          {"id": "overkill", "label": "Không cần realtime / đa bước / quyết định động → Agent là overkill"}
+        ]
+      },
+      {
+        "id": "agentic-fit",
+        "label": "Agentic Fit\nCó đáng dùng Agent?",
+        "color": "#3B82F6",
+        "clue": "Bài toán có đủ độ phức tạp để đầu tư Agent không?",
+        "children": [
+          {"id": "fit-purpose", "label": "Mục đích", "detail": "Dùng tiêu chí và ma trận chấm điểm để quyết định nâng cấp lên Agent."},
+          {"id": "multi-step", "label": "1. Multi-step reasoning", "detail": "Có cần các bước trung gian phụ thuộc lẫn nhau?"},
+          {"id": "tool-interaction", "label": "2. Tool interaction", "children": [{"id": "tool-search", "label": "Search"}, {"id": "tool-api", "label": "Third-party API"}, {"id": "tool-db", "label": "Database"}, {"id": "tool-calc", "label": "Calculator"}, {"id": "tool-browser", "label": "Browser"}, {"id": "tool-file", "label": "File system"}]},
+          {"id": "dynamic-decision", "label": "3. Dynamic decision", "detail": "Bước kế tiếp có phụ thuộc observation vừa nhận?"},
+          {"id": "long-horizon", "label": "4. Long horizon", "detail": "Có phải giữ mục tiêu qua nhiều vòng lặp và state phức tạp?"},
+          {
+            "id": "fit-score",
+            "label": "Chấm điểm 1–5",
+            "clue": "Tổng Reasoning + Tool Use + Dynamic Decision dẫn tới kiến trúc nào?",
+            "children": [
+              {"id": "score-low", "label": "0–5: Rule / Chatbot", "detail": "Ví dụ HR FAQ = 1 + 1 + 1 = 3."},
+              {"id": "score-mid", "label": "6–10: Augmented Chatbot", "detail": "Ví dụ tóm tắt hợp đồng/cảnh báo rủi ro = 3 + 2 + 2 = 7."},
+              {"id": "score-high", "label": "≥11: Đầu tư Agent", "children": [{"id": "booking-score", "label": "Booking Assistant = 13"}, {"id": "research-score", "label": "Research Agent = 12"}, {"id": "code-score", "label": "Code Assistant = 14"}]}
+            ]
+          },
+          {
+            "id": "anti-patterns",
+            "label": "Anti-patterns",
+            "clue": "Khi nào Agent sẽ phản tác dụng?",
+            "children": [
+              {"id": "single-step", "label": "Single-step: FAQ / phân loại cơ bản"},
+              {"id": "no-tools", "label": "No tools: suy luận trừu tượng, không tác động môi trường"},
+              {"id": "deterministic", "label": "Cần chính xác tuyệt đối, logic cố định"},
+              {"id": "latency-constraint", "label": "Latency quá nghiêm ngặt"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "architecture",
+        "label": "Kiến trúc\nAgent tổng quát",
+        "color": "#8B5CF6",
+        "clue": "Một Agent hoàn chỉnh nhận biết, suy luận, hành động và nhớ thông tin qua những khối nào?",
+        "children": [
+          {"id": "architecture-loop", "label": "Vòng tuần hoàn", "detail": "Perception ↔ Reasoning ↔ Action ↔ Memory."},
+          {"id": "perception", "label": "1. Perception", "children": [{"id": "user-input", "label": "User input"}, {"id": "tool-results", "label": "Tool results"}, {"id": "environment", "label": "Phản hồi môi trường"}]},
+          {"id": "reasoning", "label": "2. Reasoning", "children": [{"id": "llm-core", "label": "LLM Core = bộ não"}, {"id": "analyze-state", "label": "Phân tích state"}, {"id": "choose-next", "label": "Chọn hành động tiếp"}]},
+          {"id": "action", "label": "3. Action", "children": [{"id": "api-call", "label": "Gọi API"}, {"id": "search-call", "label": "Search"}, {"id": "data-query", "label": "Truy vấn dữ liệu"}, {"id": "final-answer", "label": "Final answer"}]},
+          {
+            "id": "memory",
+            "label": "4. Memory",
+            "clue": "Khi nào dùng context ngắn hạn, khi nào phải dùng storage bên ngoài?",
+            "children": [
+              {"id": "short-memory", "label": "Short-term memory", "children": [{"id": "short-context", "label": "Nằm trong context window"}, {"id": "short-best", "label": "Hội thoại ngắn, vài bước"}, {"id": "short-limit", "label": "Dễ đầy khi hội thoại dài"}]},
+              {"id": "long-memory", "label": "Long-term memory", "children": [{"id": "long-storage", "label": "Database · Vector Store · KV Store"}, {"id": "long-keeps", "label": "Preferences · facts · state dài hạn"}, {"id": "long-needs", "label": "Cần retrieval + permission chặt"}]}
+            ]
+          },
+          {"id": "costs", "label": "4 nhóm chi phí", "children": [{"id": "token-cost", "label": "Token"}, {"id": "storage-cost", "label": "Storage"}, {"id": "api-cost", "label": "Third-party APIs"}, {"id": "latency-cost", "label": "Latency"}]},
+          {
+            "id": "tool-calling",
+            "label": "Tool calling",
+            "clue": "Tool biến Agent từ “bộ não” thành hệ thống có thể tác động thế giới như thế nào?",
+            "children": [
+              {"id": "tool-flow", "label": "Goal → LLM → JSON args → Tool → Observation → LLM → Answer"},
+              {"id": "tool-definition", "label": "Tool definition rõ", "children": [{"id": "tool-input", "label": "Input"}, {"id": "tool-output", "label": "Output"}, {"id": "tool-errors", "label": "Error modes"}]},
+              {"id": "tool-dependency", "label": "Tradeoff: phụ thuộc ngoài làm tăng lỗi"}
+            ]
+          },
+          {
+            "id": "pattern-ladder",
+            "label": "Nấc thang thiết kế",
+            "children": [
+              {"id": "aug-llm", "label": "1. Augmented LLM", "detail": "Prompt + hướng dẫn + tools định nghĩa sẵn."},
+              {"id": "prompt-chain", "label": "2. Prompt chaining", "detail": "Các bước tuần tự, cố định."},
+              {"id": "routing", "label": "3. Routing", "detail": "Phân loại ý định đến nhánh/model phù hợp."},
+              {"id": "orchestrator-workers", "label": "4. Orchestrator–Workers", "detail": "Điều phối chia task cho workers rồi tổng hợp."},
+              {"id": "autonomous-ladder", "label": "5. Autonomous Agent", "detail": "Tự quyết chuỗi động nhiều bước."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "react",
+        "label": "ReAct Pattern\nReasoning + Acting",
+        "color": "#EC4899",
+        "clue": "Vì sao vòng Thought–Action–Observation giúp LLM giải bài toán nhiều bước và dễ debug hơn?",
+        "children": [
+          {"id": "react-definition", "label": "ReAct là gì?", "detail": "Pattern kinh điển biến LLM thành Agent giải bài toán phức tạp, có trace trực quan."},
+          {
+            "id": "react-loop",
+            "label": "Vòng lặp ReAct",
+            "clue": "Agent cần làm gì thay vì trả lời ngay?",
+            "children": [
+              {"id": "thought", "label": "1. Thought", "detail": "Mình thiếu gì? Bước tiếp theo nên là gì?"},
+              {"id": "action-react", "label": "2. Action", "detail": "Chọn tool và arguments tương ứng."},
+              {"id": "observation", "label": "3. Observation", "detail": "Nhận, đọc và phân tích kết quả tool."},
+              {"id": "loop-until", "label": "Lặp đến đủ thông tin → Final Answer"}
+            ]
+          },
+          {"id": "trace-value", "label": "Giá trị Trace", "children": [{"id": "trace-readable", "label": "Đọc được suy luận + lý do hành động"}, {"id": "trace-debug", "label": "Dễ theo dõi, test, phát hiện lỗi"}, {"id": "trace-intervene", "label": "Dễ can thiệp đúng thời điểm"}]},
+          {
+            "id": "react-trace-example",
+            "label": "Trace: vé bay + thời tiết",
+            "clue": "Một vòng ReAct thật sự diễn ra như thế nào?",
+            "children": [
+              {"id": "t1", "label": "Thought 1: tìm HAN → SGN < 2M"},
+              {"id": "a1", "label": "Action 1: search_flights"},
+              {"id": "o1", "label": "Observation 1: VietJet 1,75M; VNA 1,95M"},
+              {"id": "t2", "label": "Thought 2: cần kiểm tra mưa"},
+              {"id": "a2", "label": "Action 2: get_weather(HCM)"},
+              {"id": "o2", "label": "Observation 2: 27–32°C, mưa 70%"},
+              {"id": "t3", "label": "Thought 3: đã đủ hai luồng thông tin"},
+              {"id": "final-trace", "label": "Final: chọn VietJet + đồ nhẹ + ô/áo mưa"}
+            ]
+          },
+          {
+            "id": "react-tradeoff",
+            "label": "Ưu điểm & giới hạn",
+            "children": [
+              {"id": "react-pros", "label": "Ưu điểm", "children": [{"id": "pro-debug", "label": "Trace dễ debug"}, {"id": "pro-adapt", "label": "Quyết định theo observation"}, {"id": "pro-fit", "label": "Hợp research · coding · booking"}, {"id": "pro-guards", "label": "Gắn safeguard từng vòng"}]},
+              {"id": "react-cons", "label": "Giới hạn", "children": [{"id": "con-token", "label": "Tốn token, tăng latency"}, {"id": "con-loop", "label": "Có thể infinite loop / sai tool"}, {"id": "con-eval", "label": "Cần eval cả trace"}, {"id": "con-simple", "label": "Không hợp tác vụ đơn giản/cố định"}]}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "implementation",
+        "label": "Agent Loop\n& safeguards",
+        "color": "#06B6D4",
+        "clue": "Mã nguồn và prompt cần những thành phần nào để ReAct chạy ổn định trong production?",
+        "children": [
+          {
+            "id": "loop-anatomy",
+            "label": "Code anatomy",
+            "children": [
+              {"id": "loop-input", "label": "Nhận user_query + max_iterations"},
+              {"id": "loop-history", "label": "Khởi tạo history + current input"},
+              {"id": "loop-generate", "label": "LLM sinh Thought + Action"},
+              {"id": "loop-parse", "label": "Parse action + args"},
+              {"id": "loop-log", "label": "Log Thought"},
+              {"id": "loop-final", "label": "Nếu final → return answer"},
+              {"id": "loop-execute", "label": "Tool registry gọi action"},
+              {"id": "loop-catch", "label": "Catch lỗi tool → Observation lỗi"},
+              {"id": "loop-append", "label": "Thêm Observation vào history"},
+              {"id": "loop-fallback", "label": "Hết vòng → fallback chatbot"}
+            ]
+          },
+          {
+            "id": "system-prompt",
+            "label": "System Prompt chuẩn",
+            "clue": "Cần ép định dạng nào để tránh format drift?",
+            "children": [
+              {"id": "prompt-role", "label": "Trợ lý được dùng tools"},
+              {"id": "prompt-thought", "label": "1. Thought"},
+              {"id": "prompt-action", "label": "2. Action = tool trong danh sách"},
+              {"id": "prompt-input", "label": "3. Action Input = JSON chuẩn"},
+              {"id": "prompt-observation", "label": "4. Observation = hệ thống cung cấp"},
+              {"id": "prompt-final", "label": "5. Final Answer khi đủ thông tin"}
+            ]
+          },
+          {
+            "id": "safeguards",
+            "label": "Safeguards production",
+            "clue": "Những chốt chặn nào ngăn tiêu tốn tài nguyên và lỗi vô hạn?",
+            "children": [
+              {"id": "max-iterations", "label": "Max iterations", "detail": "Giới hạn cứng; thường 3–5 vòng tùy use case."},
+              {"id": "timeout", "label": "Timeout", "detail": "Mỗi tool/API có thời gian phản hồi tối đa."},
+              {"id": "budget", "label": "Token / cost budget", "detail": "Ngưỡng chi phí tối đa mỗi phiên."},
+              {"id": "retry", "label": "Controlled retry", "detail": "Retry có giới hạn + backoff."}
+            ]
+          },
+          {
+            "id": "loop-detection",
+            "label": "Loop detection",
+            "clue": "Dấu hiệu nào buộc Agent break loop và fallback?",
+            "children": [
+              {"id": "same-tool", "label": "Lặp tool + cùng args"},
+              {"id": "same-question", "label": "Hỏi lại thông tin đã có"},
+              {"id": "no-progress", "label": "Thought không tiến triển"},
+              {"id": "same-observation", "label": "Observation không đổi nhưng vẫn lặp"}
+            ]
+          },
+          {
+            "id": "langgraph",
+            "label": "Từ loop tay đến LangGraph",
+            "clue": "Khi nhiều nhánh, vì sao chuyển sang Graph Approach?",
+            "children": [
+              {"id": "manual-loop", "label": "Loop tay: tốt để hiểu bản chất"},
+              {"id": "adhoc-limit", "label": "Ad-hoc khó giữ khi nhiều nhánh"},
+              {"id": "stateful-graph", "label": "Stateful graph", "children": [{"id": "graph-nodes", "label": "Nodes = actions"}, {"id": "graph-edges", "label": "Edges = flow"}, {"id": "conditional-edges", "label": "Conditional edges"}, {"id": "graph-state", "label": "State xuyên suốt"}]},
+              {"id": "graph-benefit", "label": "Dễ bảo trì · mở rộng · quản trị state"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "testing-debugging",
+        "label": "Test · Debug\n& Hybrid pattern",
+        "color": "#F97316",
+        "clue": "Kiểm thử và debug Agent thế nào để thấy lỗi trong cả quá trình, không chỉ final answer?",
+        "children": [
+          {
+            "id": "weather-demo",
+            "label": "Live demo: Weather + Outfit",
+            "children": [
+              {"id": "demo-tools", "label": "1. Define get_weather + recommend_outfit"},
+              {"id": "demo-prompt", "label": "2. Không trả lời trước khi gọi weather"},
+              {"id": "demo-trace", "label": "3. Hiển thị Thought/Action/Observation log"},
+              {"id": "demo-fault", "label": "4. Giả lập timeout / outfit sai"},
+              {"id": "demo-fix", "label": "5. Sửa tool description / prompt / safeguard"}
+            ]
+          },
+          {
+            "id": "debug-checklist",
+            "label": "Debug checklist",
+            "clue": "Agent sai: xem trace trước, rồi kiểm tra bốn lớp nào?",
+            "children": [
+              {"id": "debug-first", "label": "Trace log trước, final answer sau"},
+              {"id": "debug-tool", "label": "1. Tool description mơ hồ?"},
+              {"id": "debug-stop", "label": "2. Prompt thiếu quy tắc dừng?"},
+              {"id": "debug-guards", "label": "3. Thiếu safeguards dự phòng?"},
+              {"id": "debug-eval", "label": "4. Eval chỉ chấm final, bỏ trace?"}
+            ]
+          },
+          {"id": "debug-nature", "label": "Bản chất debugging", "detail": "Giống debug distributed system hơn prompt tuning: kiểm soát LLM, tools, state và orchestration."},
+          {
+            "id": "hybrid",
+            "label": "Hybrid: Chatbot & Agent",
+            "clue": "Làm sao tránh chạy Agent tốn kém cho mọi yêu cầu?",
+            "children": [
+              {"id": "triage", "label": "User query → Intent/Triage node"},
+              {"id": "simple-path", "label": "Nhánh 1: FAQ đơn giản → Chatbot", "detail": "Nhanh, chi phí thấp."},
+              {"id": "agent-path", "label": "Nhánh 2: đa bước → Agent loop", "detail": "Gọi tools, xử lý động."},
+              {"id": "human-path", "label": "Nhánh 3: sự cố/đặc biệt → Human escalation"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "lab",
+        "label": "Lab #3\nChatbot vs Agent",
+        "color": "#EAB308",
+        "clue": "Làm sao chứng minh Agent tạo giá trị hơn chatbot baseline trong một use case thật?",
+        "children": [
+          {"id": "lab-1", "label": "1. Chọn use case Day 2 / tương đương"},
+          {"id": "lab-2", "label": "2. Xây Chatbot Baseline"},
+          {"id": "lab-3", "label": "3. Nâng cấp ReAct + 1–2 tools"},
+          {"id": "lab-4", "label": "4. Chạy cùng 5 test cases"},
+          {"id": "lab-5", "label": "5. Vẽ flowchart + ghi lúc Agent vượt trội"},
+          {
+            "id": "deliverables",
+            "label": "Deliverables (150 phút)",
+            "children": [
+              {"id": "d-chat", "label": "Code Chatbot Baseline"},
+              {"id": "d-agent", "label": "Code ReAct Agent"},
+              {"id": "d-tests", "label": "5 ca kiểm thử"},
+              {"id": "d-log", "label": "Trace log"},
+              {"id": "d-flow", "label": "Flowchart"},
+              {"id": "d-bonus", "label": "Bonus: fallback / human escalation"}
+            ]
+          },
+          {
+            "id": "homework",
+            "label": "Bài tập về nhà",
+            "children": [
+              {"id": "hw-trace", "label": "Tìm 1 quyết định/tool call chưa tối ưu trong trace"},
+              {"id": "hw-description", "label": "Viết lại tool description: input/output/failure"},
+              {"id": "hw-next", "label": "Đọc trước Prompt Engineering & Tool Calling"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "references",
+        "label": "Nguồn\nđào sâu",
+        "color": "#64748B",
+        "clue": "Đọc gì tiếp để hiểu nền tảng ReAct, Agent patterns, LangGraph và tài nguyên Lab?",
+        "children": [
+          {"id": "ref-react", "label": "ReAct paper (2023)", "url": "https://arxiv.org/abs/2210.03629"},
+          {"id": "ref-anthropic", "label": "Building Effective Agents", "url": "https://www.anthropic.com/research/building-effective-agents"},
+          {"id": "ref-langgraph", "label": "LangGraph docs", "url": "https://langchain-ai.github.io/langgraph"},
+          {"id": "ref-aicb", "label": "AICB VinUniversity assets", "url": "https://github.com/aicb-vinuni"},
+          {"id": "ref-lab", "label": "Lab 3 template", "url": "https://bit.ly/aicb-day03-lab"}
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,302 @@
+{
+  "format": "hierarchical-mindmap",
+  "version": "2.0",
+  "title": "AI Product — Từ yêu cầu mơ hồ đến Problem Statement",
+  "instructions_for_renderer": {
+    "layout": "radial",
+    "root_position": "center",
+    "branch_style": "curved",
+    "expand_from": "center_outward",
+    "show_fields": ["label"],
+    "use_clue_as": "node_tooltip_or_speaker_note",
+    "use_detail_as": "node_tooltip_or_detail_panel",
+    "color_rule": "inherit_parent_color_unless_color_is_set"
+  },
+  "root": {
+    "id": "root",
+    "label": "AI PRODUCT\nDAY 02",
+    "color": "#F59E0B",
+    "clue": "Làm thế nào chuyển một yêu cầu AI mơ hồ thành bài toán có giá trị, chọn đúng mức kỹ thuật và vận hành an toàn?",
+    "children": [
+      {
+        "id": "pillars",
+        "label": "Nền tảng\nAI Product",
+        "color": "#22C55E",
+        "clue": "Một sản phẩm AI thành công phải hội tụ những năng lực nào, ngoài model?",
+        "children": [
+          {"id": "product-not-only-ai", "label": "AI Product vẫn là Product", "detail": "Sản phẩm AI kế thừa, không thay thế, các nguyên lý phát triển sản phẩm truyền thống."},
+          {
+            "id": "ai-engineering",
+            "label": "AI Engineering",
+            "clue": "Cần những năng lực kỹ thuật nào để AI chạy thực tế?",
+            "children": [
+              {"id": "rag", "label": "RAG"},
+              {"id": "agents", "label": "AI Agent"},
+              {"id": "guardrails", "label": "Guardrails"},
+              {"id": "evaluation", "label": "Evaluation"},
+              {"id": "production", "label": "Vận hành production"}
+            ]
+          },
+          {
+            "id": "product-thinking",
+            "label": "Product Thinking",
+            "clue": "Làm sao tránh xây tính năng hay nhưng không có giá trị?",
+            "children": [
+              {"id": "right-problem", "label": "Xác định đúng bài toán"},
+              {"id": "understand-user", "label": "Hiểu sâu người dùng"},
+              {"id": "real-value", "label": "Tạo giá trị thực"}
+            ]
+          },
+          {
+            "id": "design-thinking",
+            "label": "Design Thinking",
+            "clue": "Thiết kế thế nào khi AI có thể sai hoặc không chắc chắn?",
+            "children": [
+              {"id": "mental-model", "label": "Mental model người dùng"},
+              {"id": "feedback", "label": "Feedback tương tác"},
+              {"id": "graceful-failure", "label": "Graceful failure"}
+            ]
+          },
+          {
+            "id": "learning-sources",
+            "label": "Xương sống học liệu",
+            "children": [
+              {"id": "pair", "label": "Google PAIR", "detail": "People + AI Guidebook: nhu cầu, dữ liệu, mental model, explainability, feedback, errors."},
+              {"id": "chip-huyen", "label": "AI Engineering", "detail": "Chip Huyen, O'Reilly 2025: planning, model, architecture, eval, monitoring."},
+              {"id": "inspired", "label": "Inspired", "detail": "Marty Cagan: tư duy sản phẩm định giá trị."},
+              {"id": "don-norman", "label": "Design of Everyday Things", "detail": "Thiết kế lấy con người làm trung tâm."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "discovery",
+        "label": "Problem Discovery\nTìm đúng vấn đề",
+        "color": "#3B82F6",
+        "clue": "Trước khi xây giải pháp AI, làm sao biết mình không đang giải một bài toán sai?",
+        "children": [
+          {"id": "discovery-warning", "label": "Sai lầm kinh điển", "detail": "Xây giải pháp xuất sắc cho bài toán sai còn tệ hơn không có giải pháp."},
+          {"id": "hcd-rule", "label": "Nguyên lý HCD", "detail": "Don Norman: đừng chỉ giải vấn đề được yêu cầu; hãy tìm vấn đề thực sự bên dưới."},
+          {
+            "id": "double-diamond",
+            "label": "Double Diamond",
+            "clue": "Quy trình phân kỳ và hội tụ giúp đi từ mơ hồ đến giải pháp được kiểm chứng như thế nào?",
+            "children": [
+              {
+                "id": "discover-phase",
+                "label": "Diamond 1: Discover",
+                "clue": "Mở rộng góc nhìn để tìm các vấn đề gốc bằng chứng cứ nào?",
+                "children": [
+                  {"id": "observation", "label": "Quan sát thực tế"},
+                  {"id": "user-interview", "label": "Phỏng vấn người dùng"},
+                  {"id": "survey", "label": "Khảo sát"},
+                  {"id": "diary", "label": "Nhật ký hành vi"},
+                  {"id": "data-analysis", "label": "Phân tích dữ liệu"},
+                  {"id": "stakeholder-map", "label": "Stakeholder mapping"}
+                ]
+              },
+              {
+                "id": "define-phase",
+                "label": "Diamond 1: Define",
+                "clue": "Từ nhiều phát hiện, làm sao hội tụ về một vấn đề gốc có ưu tiên?",
+                "children": [
+                  {"id": "affinity", "label": "Affinity mapping"},
+                  {"id": "five-whys", "label": "5 Whys"},
+                  {"id": "impact-effort", "label": "Impact–Effort matrix"},
+                  {"id": "dot-voting", "label": "Dot voting"},
+                  {"id": "hmw", "label": "How Might We"},
+                  {"id": "define-outcome", "label": "Kết quả: Problem Statement"}
+                ]
+              },
+              {
+                "id": "develop-deliver",
+                "label": "Diamond 2: Develop & Deliver",
+                "clue": "Sau khi có bài toán đúng, làm sao tìm và xác thực giải pháp?",
+                "children": [
+                  {"id": "many-solutions", "label": "Phát triển nhiều giải pháp"},
+                  {"id": "prototype", "label": "Prototype nhanh"},
+                  {"id": "test", "label": "Test liên tục"}
+                ]
+              }
+            ]
+          },
+          {
+            "id": "discovery-interview",
+            "label": "Discovery Interview",
+            "clue": "Cần hỏi stakeholder những gì để có căn cứ thay vì phỏng đoán?",
+            "children": [
+              {"id": "q-pain", "label": "1. Pain lớn nhất?", "detail": "Vấn đề gì đau nhất và lặp lại bao nhiêu lần mỗi ngày/tuần?"},
+              {"id": "q-workflow", "label": "2. Workflow hiện tại?", "detail": "Các bước, công cụ, người bàn giao và trách nhiệm ở từng bước?"},
+              {"id": "q-cost", "label": "3. Thiệt hại cụ thể?", "detail": "Thời gian, tài chính, SLA hay tỷ lệ chuyển đổi bị ảnh hưởng?"},
+              {"id": "q-error", "label": "4. AI sai thì sao?", "detail": "Hậu quả, điểm HITL/phê duyệt và phạm vi AI chỉ nên gợi ý?"},
+              {"id": "q-decision", "label": "5. Ai nói YES?", "detail": "Ai phê duyệt; metric và risk nào quyết định đầu tư?"},
+              {"id": "interview-warning", "label": "Cảnh báo", "detail": "Không mô tả được workflow và thiệt hại → đề xuất AI chỉ là phỏng đoán."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "problem-statement",
+        "label": "Problem Statement\n9 trường",
+        "color": "#8B5CF6",
+        "clue": "Làm thế nào đóng gói pain point thành một bài toán đủ rõ để thiết kế, xây và đánh giá?",
+        "children": [
+          {"id": "ps-purpose", "label": "Mục đích", "detail": "Chuyển điểm đau mơ hồ thành bài toán sẵn sàng triển khai kỹ thuật."},
+          {
+            "id": "core-six",
+            "label": "6 yếu tố bài toán",
+            "children": [
+              {"id": "actor", "label": "1. Actor", "detail": "Ai chịu ảnh hưởng trực tiếp? Ví dụ: Lab Coach hỗ trợ lớp 1.000 học viên."},
+              {"id": "workflow", "label": "2. Workflow", "detail": "Quy trình hiện tại là gì? Ví dụ: hỏi → nghiên cứu ngữ cảnh → phản hồi/làm rõ → cập nhật bài."},
+              {"id": "bottleneck", "label": "3. Bottleneck", "detail": "Chậm, lặp lại hoặc dễ sai ở đâu? Ví dụ: câu hỏi trùng/thiếu nền tảng, phải rà soát tay."},
+              {"id": "impact", "label": "4. Impact", "detail": "Mất gì về thời gian, chi phí, SLA hay chất lượng? Ví dụ: phản hồi chậm, Lab Coach quá tải."},
+              {"id": "success-metric", "label": "5. Success metric", "detail": "Đo cải thiện: giảm câu lặp cần duyệt, rút ngắn phản hồi, không tăng định hướng sai."},
+              {"id": "boundary", "label": "6. Boundary", "detail": "AI không được tự quyết gì? Ví dụ: không tự đánh giá/chấm bài, chỉ gợi ý và điều phối."}
+            ]
+          },
+          {
+            "id": "ai-three",
+            "label": "3 yếu tố quyết định AI",
+            "children": [
+              {"id": "intervention", "label": "7. AI Intervention", "detail": "AI can thiệp đúng điểm nào? Ví dụ: ngay khi học viên gửi câu hỏi/Problem Card thiếu context."},
+              {"id": "decision-level", "label": "8. Decision Level", "detail": "Chọn Rule, Workflow hay Agent. Ví dụ: workflow phát hiện thiếu thông tin, người duyệt câu chuyên sâu."},
+              {"id": "risk-hitl", "label": "9. Risk & HITL", "detail": "Nếu AI định hướng sai, Lab Coach kiểm duyệt trước khi gửi phản hồi cuối."}
+            ]
+          },
+          {
+            "id": "case-ta",
+            "label": "Case: TA / Lab Coach",
+            "clue": "Đặt 9 trường vào một case cụ thể sẽ làm rõ thiết kế ra sao?",
+            "children": [
+              {"id": "case-scale", "label": "Lớp quy mô 1.000 học viên"},
+              {"id": "case-bottleneck", "label": "Câu hỏi lặp / thiếu context"},
+              {"id": "case-ai", "label": "AI gợi ý làm rõ"},
+              {"id": "case-human", "label": "Coach duyệt câu chuyên sâu"},
+              {"id": "case-no-grading", "label": "AI không tự chấm điểm"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pair-decision",
+        "label": "Có nên dùng AI?\nGoogle PAIR",
+        "color": "#06B6D4",
+        "clue": "AI có thật sự là lời giải phù hợp, và nên làm thay hay hỗ trợ con người?",
+        "children": [
+          {
+            "id": "ai-fit",
+            "label": "1. AI có lợi thế?",
+            "clue": "Bài toán nằm ở giao điểm giữa nhu cầu thực và thứ AI làm tốt không?",
+            "children": [
+              {"id": "better", "label": "AI probably better", "children": [{"id": "personalization", "label": "Cá nhân hóa / gợi ý"}, {"id": "prediction", "label": "Dự đoán từ dữ liệu lịch sử"}, {"id": "nlu", "label": "Hiểu ngôn ngữ tự do"}, {"id": "recognition", "label": "Nhận diện thực thể"}, {"id": "rare-events", "label": "Phát hiện sự kiện hiếm"}, {"id": "bots", "label": "Agent/Bot chuyên biệt"}, {"id": "dynamic-ui", "label": "Giao diện động"}]},
+              {"id": "not-better", "label": "AI probably NOT better", "children": [{"id": "consistent", "label": "Cần nhất quán, dự đoán được"}, {"id": "static-info", "label": "Thông tin tĩnh, ít đổi"}, {"id": "high-error-cost", "label": "Một lỗi quá đắt"}, {"id": "full-trace", "label": "Cần truy vết tuyệt đối"}, {"id": "max-speed", "label": "Cần tốc độ/chi phí cực thấp"}, {"id": "personal-meaning", "label": "Người dùng muốn tự làm"}]}
+            ]
+          },
+          {
+            "id": "role",
+            "label": "2. Automate hay Augment?",
+            "clue": "AI làm thay hoàn toàn hay tăng cường năng lực nhưng người vẫn kiểm soát?",
+            "children": [
+              {"id": "automate", "label": "Automate: AI làm thay", "children": [{"id": "auto-when", "label": "Nhàm chán · nguy hiểm · scale lớn · một đáp án"}, {"id": "auto-measure", "label": "Đo: hiệu suất, giảm việc tẻ nhạt"}]},
+              {"id": "augment", "label": "Augment: người kiểm soát", "children": [{"id": "aug-when", "label": "Rủi ro cao · trách nhiệm cá nhân · thích tự làm"}, {"id": "aug-domains", "label": "Pháp lý · tài chính · sức khỏe"}, {"id": "aug-measure", "label": "Đo: hài lòng, kiểm soát, sáng tạo"}]}
+            ]
+          },
+          {
+            "id": "precision-recall",
+            "label": "3. Precision vs Recall",
+            "clue": "Khi không thể chính xác 100%, hệ thống nên bỏ sót ít hay báo nhầm ít?",
+            "children": [
+              {"id": "precision", "label": "Precision cao", "children": [{"id": "precision-formula", "label": "TP / (TP + FP)"}, {"id": "precision-result", "label": "Ít gợi ý nhưng chắc"}, {"id": "precision-cost", "label": "Đổi lại: nhiều False Negative"}]},
+              {"id": "recall", "label": "Recall cao", "children": [{"id": "recall-formula", "label": "TP / (TP + FN)"}, {"id": "recall-result", "label": "Bao trọn trường hợp cần hỗ trợ"}, {"id": "recall-cost", "label": "Đổi lại: nhiều False Positive"}]}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "solution-levels",
+        "label": "Rule · Workflow\n· Agent",
+        "color": "#EC4899",
+        "clue": "Mức kỹ thuật đơn giản nhất nào đã đủ giải quyết bài toán?",
+        "children": [
+          {"id": "simplicity-rule", "label": "Nguyên tắc", "detail": "Tăng độ phức tạp không đồng nghĩa tăng hiệu quả; luôn ưu tiên mức đơn giản đủ dùng."},
+          {"id": "rule", "label": "Level 1: Rule-based", "children": [{"id": "rule-condition", "label": "If/Else rõ · input ổn định"}, {"id": "rule-goal", "label": "Dự đoán trước, kiểm soát 100%"}, {"id": "rule-examples", "label": "Thuế · spam keyword · auto-reply mẫu"}]},
+          {"id": "workflow-level", "label": "Level 2: Workflow", "children": [{"id": "wf-condition", "label": "Input đa dạng, nhưng bước rõ"}, {"id": "wf-ai", "label": "AI xử lý ngôn ngữ/đánh giá từng công đoạn"}, {"id": "wf-hitl", "label": "Người kiểm tra trước khi gửi"}]},
+          {"id": "agent-level", "label": "Level 3: Agent", "children": [{"id": "agent-condition", "label": "Không biết trước toàn bộ bước"}, {"id": "agent-dynamic", "label": "Môi trường nhiều biến số"}, {"id": "agent-tools", "label": "Nhiều công cụ, tự đổi kế hoạch"}]},
+          {
+            "id": "decision-tree",
+            "label": "Cây quyết định",
+            "clue": "Đi qua ba câu hỏi để quyết định không làm AI, Rule, Workflow hay Agent.",
+            "children": [
+              {"id": "check-scale", "label": "1. Tần suất & tác động đủ lớn?", "children": [{"id": "scale-no", "label": "Không → làm thủ công trước"}, {"id": "scale-yes", "label": "Có → kiểm tra logic"}]},
+              {"id": "check-logic", "label": "2. Logic rõ, input ổn định?", "children": [{"id": "logic-yes", "label": "Có → Rule / script tĩnh"}, {"id": "logic-no", "label": "Không → kiểm tra độ linh hoạt"}]},
+              {"id": "check-flexibility", "label": "3. Bước quy trình cố định?", "children": [{"id": "flex-yes", "label": "Có → Workflow + AI"}, {"id": "flex-no", "label": "Không → Agent + chốt chặn"}]}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "workflow-patterns",
+        "label": "Workflow Patterns\nAnthropic",
+        "color": "#F97316",
+        "clue": "Khi một prompt chưa đủ, kiến trúc nào phù hợp và phải đánh đổi điều gì?",
+        "children": [
+          {"id": "pattern-principle", "label": "Mỗi pattern có tradeoff", "detail": "Chọn pattern theo bài toán, không theo độ “phức tạp” nghe có vẻ mạnh."},
+          {"id": "chain", "label": "1. Prompt Chaining", "children": [{"id": "chain-gain", "label": "Được: chính xác hơn, có gate"}, {"id": "chain-cost", "label": "Mất: chậm, cộng dồn latency"}]},
+          {"id": "routing", "label": "2. Routing", "children": [{"id": "routing-gain", "label": "Được: tối ưu chi phí theo nhánh"}, {"id": "routing-example", "label": "Câu dễ → model rẻ; khó → model mạnh"}, {"id": "routing-cost", "label": "Mất: router phải rất chính xác"}]},
+          {"id": "parallel", "label": "3. Parallelization", "children": [{"id": "parallel-gain", "label": "Được: guardrail/voting tin cậy hơn"}, {"id": "parallel-cost", "label": "Mất: chi phí tăng theo số nhánh"}]},
+          {"id": "orchestrator", "label": "4. Orchestrator–Workers", "children": [{"id": "orch-gain", "label": "Được: bài toán mở, task con khó biết trước"}, {"id": "orch-cost", "label": "Mất: khó test, khó dự đoán"}]},
+          {"id": "evaluator", "label": "5. Evaluator–Optimizer", "children": [{"id": "eval-gain", "label": "Được: tăng chất lượng qua vòng lặp"}, {"id": "eval-cost", "label": "Mất: cần tiêu chí rõ, tăng cost/latency"}]},
+          {"id": "autonomous-agent", "label": "6. Agent", "children": [{"id": "agent-gain", "label": "Được: tự chủ cao, đa công cụ"}, {"id": "agent-cost", "label": "Mất: vận hành đắt, error propagation"}]}
+        ]
+      },
+      {
+        "id": "eval-ux-safety",
+        "label": "Eval Plan\n& UX Fallback",
+        "color": "#EAB308",
+        "clue": "Làm sao biến Problem Statement thành test, ranh giới kỹ thuật và trải nghiệm an toàn khi AI thất bại?",
+        "children": [
+          {"id": "quality-test", "label": "Kiểm tra độ chặt", "detail": "Không suy ra được test case, eval metric và architecture boundary → Problem Statement chưa đủ chặt."},
+          {"id": "test-cases", "label": "Test cases", "children": [{"id": "real-data", "label": "Dữ liệu thực tế"}, {"id": "edge-cases", "label": "Edge cases"}, {"id": "test-question", "label": "Biết đúng bằng cách nào?"}]},
+          {"id": "eval-metrics", "label": "Eval metrics", "children": [{"id": "accuracy", "label": "Accuracy"}, {"id": "latency", "label": "Latency"}, {"id": "cost", "label": "Cost"}, {"id": "csat", "label": "CSAT"}]},
+          {"id": "architecture-boundary", "label": "Architecture boundary", "children": [{"id": "allowed", "label": "AI được phép làm gì"}, {"id": "hitl-boundary", "label": "Điểm HITL/phê duyệt"}, {"id": "rollback", "label": "Rollback / khôi phục"}, {"id": "permissions", "label": "Permissions"}]},
+          {
+            "id": "ux-fallback",
+            "label": "UX Fallback",
+            "clue": "Khi AI yếu hoặc sai, UI nên nâng đỡ người dùng bằng cách nào?",
+            "children": [
+              {"id": "low-confidence", "label": "Low confidence", "children": [{"id": "confirm", "label": "Yêu cầu xác nhận rõ"}]},
+              {"id": "high-risk", "label": "High risk", "children": [{"id": "suggest-only", "label": "Chỉ suggest, không auto-action"}]},
+              {"id": "overload", "label": "Phản hồi quá dài", "children": [{"id": "cards", "label": "Chia cards / tóm tắt"}, {"id": "user-choice", "label": "Để người dùng chủ động chọn"}]},
+              {"id": "ambiguous", "label": "Input mơ hồ", "children": [{"id": "ask-missing", "label": "Hỏi đúng thông tin còn thiếu"}, {"id": "not-guess", "label": "Không đoán sai context"}]}
+            ]
+          },
+          {
+            "id": "error-sources",
+            "label": "4 nguồn lỗi AI",
+            "children": [
+              {"id": "data-error", "label": "1. Data & prediction", "detail": "Nhãn lệch, suy luận yếu hoặc thiếu dữ liệu cục bộ."},
+              {"id": "input-error", "label": "2. Input", "detail": "Đầu vào bất ngờ hoặc ngoài thiết kế."},
+              {"id": "context-error", "label": "3. Context", "detail": "Tin cậy thấp hoặc kết quả không liên quan."},
+              {"id": "system-error", "label": "4. System hierarchy", "detail": "Nhiều hệ AI chạy song song, tín hiệu xung đột."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "readiness",
+        "label": "Readiness Gate\nGo / Not Yet / No-Go",
+        "color": "#64748B",
+        "clue": "Trước khi đầu tư, đội sản phẩm cần trả lời những câu hỏi nào để tránh làm AI quá sớm?",
+        "children": [
+          {"id": "gate-1", "label": "1. AI có thật sự cần?", "detail": "Nghiệp vụ có cần ngôn ngữ, tri thức chuyên môn hoặc suy luận sâu?"},
+          {"id": "gate-2", "label": "2. Context đã đủ?", "detail": "Dữ liệu đầu vào có đủ để AI phản hồi chính xác?"},
+          {"id": "gate-3", "label": "3. Metric đã rõ?", "detail": "Có chỉ số định lượng để đo cải tiến?"},
+          {"id": "gate-4", "label": "4. Rủi ro kiểm soát được?", "detail": "Hậu quả khi AI sai có trong phạm vi an toàn doanh nghiệp?"},
+          {"id": "gate-5", "label": "5. Có cách đơn giản hơn?", "detail": "Rule hoặc kịch bản tĩnh có rẻ và dễ bảo trì hơn?"},
+          {"id": "not-yet", "label": "Nếu chưa rõ → NOT YET", "detail": "Tạm hoãn; chuẩn hóa workflow và thu thập thêm dữ liệu."},
+          {"id": "references", "label": "Nguồn đọc sâu", "children": [{"id": "ref-pair", "label": "Google PAIR — People + AI Guidebook"}, {"id": "ref-anthropic", "label": "Anthropic — Building Effective Agents"}, {"id": "ref-google-ml", "label": "Google — Rules of Machine Learning"}, {"id": "ref-jnd", "label": "Don Norman — jnd.org"}]}
+        ]
+      }
+    ]
+  }
+}
