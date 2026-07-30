@@ -15,7 +15,7 @@ function sendJson(response, status, payload) {
 
 function clamp(value, min, max) { return Math.min(max, Math.max(min, value)); }
 
-function flattenGraph(source) {
+function flattenGraph(source, dayId) {
   const nodes = [];
   const edges = [];
 
@@ -26,7 +26,7 @@ function flattenGraph(source) {
       id: item.id,
       parentId,
       label: item.label,
-      eyebrow: depth === 0 ? 'DAY 1 · CORE' : `D${depth} · BRANCH`,
+      eyebrow: depth === 0 ? `${dayId.toUpperCase().replace('DAY', 'DAY ')} · CORE` : `D${depth} · BRANCH`,
       caption: item.detail || item.clue || '',
       question: item.clue || `Hãy giải thích lại ý chính của “${item.label}”.`,
       detail: item.detail || '',
@@ -46,7 +46,7 @@ function flattenGraph(source) {
 
   // Compute Y coordinates using post-order leaf positioning
   let nextLeafY = 0;
-  const spacingY = 120;
+  const spacingY = 160;
   const nodeYMap = {};
 
   const layoutNode = (node) => {
@@ -89,10 +89,13 @@ function flattenGraph(source) {
     }
   });
 
-  return { id: 'day1-foundation', title: 'AI & LLM Foundation', rootId: source.root.id, nodes, edges };
+  return { id: dayId, title: source.title || 'Untitled Map', rootId: source.root.id, nodes, edges };
 }
 
-async function readGraph() { return flattenGraph(JSON.parse(await readFile(graphPath, 'utf8'))); }
+async function readGraph(dayId) {
+  const graphPath = path.join(root, 'src', 'graph', `${dayId}.json`);
+  return flattenGraph(JSON.parse(await readFile(graphPath, 'utf8')), dayId);
+}
 
 function decorateNode(node, graph) {
   const childrenCount = graph.nodes.reduce((count, item) => count + (item.parentId === node.id ? 1 : 0), 0);
@@ -101,28 +104,42 @@ function decorateNode(node, graph) {
 
 const server = createServer(async (request, response) => {
   if (request.method === 'OPTIONS') return sendJson(response, 204, {});
-  if (request.method === 'GET' && request.url === '/api/graphs/day1') {
-    const graph = await readGraph();
-    const rootNode = decorateNode(graph.nodes.find(node => node.id === graph.rootId), graph);
-    const children = graph.nodes.filter(node => node.parentId === graph.rootId).map(node => decorateNode(node, graph));
-    return sendJson(response, 200, { graphId: graph.id, title: graph.title, rootId: graph.rootId, totalNodes: graph.nodes.length, nodes: [rootNode, ...children], edges: children.map(node => ({ source: graph.rootId, target: node.id })) });
+  
+  const getMatch = request.url.match(/^\/api\/graphs\/(day[1-5])$/);
+  const postMatch = request.url.match(/^\/api\/graphs\/(day[1-5])\/expand$/);
+
+  if (request.method === 'GET' && getMatch) {
+    const dayId = getMatch[1];
+    try {
+      const graph = await readGraph(dayId);
+      const rootNode = decorateNode(graph.nodes.find(node => node.id === graph.rootId), graph);
+      const children = graph.nodes.filter(node => node.parentId === graph.rootId).map(node => decorateNode(node, graph));
+      return sendJson(response, 200, { graphId: graph.id, title: graph.title, rootId: graph.rootId, totalNodes: graph.nodes.length, nodes: [rootNode, ...children], edges: children.map(node => ({ source: graph.rootId, target: node.id })) });
+    } catch (err) {
+      return sendJson(response, 404, { error: `Không tìm thấy sơ đồ cho bài ${dayId}` });
+    }
   }
-  if (request.method === 'POST' && request.url === '/api/graphs/day1/expand') {
+
+  if (request.method === 'POST' && postMatch) {
+    const dayId = postMatch[1];
     let body = '';
     request.on('data', chunk => { body += chunk; });
     request.on('end', async () => {
       try {
         const { nodeId, answer } = JSON.parse(body || '{}');
         if (!nodeId || !answer || !answer.trim()) return sendJson(response, 400, { error: 'Hãy viết câu trả lời trước khi mở rộng graph.' });
-        const graph = await readGraph();
+        const graph = await readGraph(dayId);
         const node = graph.nodes.find(item => item.id === nodeId);
         if (!node) return sendJson(response, 404, { error: 'Không tìm thấy node.' });
         const children = graph.nodes.filter(item => item.parentId === nodeId).map(item => decorateNode(item, graph));
         return sendJson(response, 200, { nodeId, accepted: true, feedback: 'Đã lưu lượt tự gọi lại.', totalNodes: graph.nodes.length, children, isLeaf: children.length === 0, edges: children.map(item => ({ source: nodeId, target: item.id })) });
-      } catch { return sendJson(response, 400, { error: 'Dữ liệu recall không hợp lệ.' }); }
+      } catch (err) {
+        return sendJson(response, 400, { error: 'Dữ liệu recall không hợp lệ.' });
+      }
     });
     return;
   }
+
   sendJson(response, 404, { error: 'Not found' });
 });
 

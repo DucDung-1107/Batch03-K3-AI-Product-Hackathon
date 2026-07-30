@@ -34,9 +34,36 @@ function TopicCard({ topic, selected, onSelect }) {
 
 function RecallModal({ node, step, onClose, onUnlock }) {
   const [answer, setAnswer] = useState('');
+  useEffect(() => {
+    setAnswer('');
+  }, [node?.id]);
   if (!node) return null;
   const submit = () => { if (answer.trim()) onUnlock(answer); };
-  return <div className="modal" role="dialog" aria-modal="true"><div className="prompt-card"><div className="prompt-step">RECALL PROMPT / 0{step}</div><h2>{node.question}</h2><p>Đừng mở tài liệu vội. Hãy tự gọi lại điều bạn nhớ, viết vài ý ngắn trước, rồi Veuron mới mở nhánh tiếp theo.</p><textarea value={answer} onChange={e => setAnswer(e.target.value)} placeholder="Viết điều bạn nhớ được…" autoFocus /><div className="modal-actions"><button className="button secondary" onClick={onClose}>Để sau</button><button className="button primary" disabled={!answer.trim()} onClick={submit}>Mở nhánh tiếp →</button></div></div></div>;
+  return (
+    <div className="modal" role="dialog" aria-modal="true">
+      <div className="prompt-card">
+        <div className="prompt-step">RECALL PROMPT / 0{step}</div>
+        <h2>{node.question}</h2>
+        <p>Đừng mở tài liệu vội. Hãy tự gọi lại điều bạn nhớ, viết vài ý ngắn trước, rồi Veuron mới mở nhánh tiếp theo.</p>
+        <textarea 
+          value={answer} 
+          onChange={e => setAnswer(e.target.value)} 
+          placeholder="Viết điều bạn nhớ được…" 
+          autoFocus 
+          onKeyDown={e => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              submit();
+            }
+          }} 
+        />
+        <div className="modal-actions">
+          <button className="button secondary" onClick={onClose}>Để sau</button>
+          <button className="button primary" disabled={!answer.trim()} onClick={submit}>Mở nhánh tiếp →</button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 const computeHorizontalLayout = (nodes, rootId) => {
@@ -52,7 +79,7 @@ const computeHorizontalLayout = (nodes, rootId) => {
 
   const nodeYMap = {};
   let nextLeafY = 0;
-  const spacingY = 120;
+  const spacingY = 160;
   const spacingX = 320;
   const startX = 60;
 
@@ -93,9 +120,10 @@ const computeHorizontalLayout = (nodes, rootId) => {
   return positions;
 };
 
-function MindMap({ topic, graph, onNodeClick }) {
+function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled }) {
   const [viewport, setViewport] = useState({ x: 0, y: 0, scale: 1 });
   const drag = useRef(null);
+  const canvasRef = useRef(null);
   const nodes = graph?.nodes || [];
   const edges = graph?.edges || [];
   const nodeMap = Object.fromEntries(nodes.map(node => [node.id, node]));
@@ -116,11 +144,32 @@ function MindMap({ topic, graph, onNodeClick }) {
   const clamp = value => Math.min(1.55, Math.max(.65, value));
   const zoom = amount => setViewport(current => ({ ...current, scale: clamp(current.scale + amount) }));
   const reset = () => setViewport({ x: 0, y: 0, scale: 1 });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const handleWheel = event => {
+      event.preventDefault();
+      if (event.ctrlKey) {
+        // Pinch-to-zoom gesture on macOS trackpad
+        zoom(-event.deltaY * 0.015);
+      } else {
+        // Two-finger swipe/scroll to pan the canvas
+        setViewport(current => ({
+          ...current,
+          x: current.x - event.deltaX,
+          y: current.y - event.deltaY
+        }));
+      }
+    };
+    canvas.addEventListener('wheel', handleWheel, { passive: false });
+    return () => canvas.removeEventListener('wheel', handleWheel);
+  }, []);
+
   const onPointerDown = event => { if (event.target.closest('.graph-node, .graph-controls')) return; event.currentTarget.setPointerCapture(event.pointerId); drag.current = { type: 'canvas', pointerX: event.clientX, pointerY: event.clientY, x: viewport.x, y: viewport.y }; };
   const onNodePointerDown = (event, node) => { event.stopPropagation(); event.currentTarget.setPointerCapture(event.pointerId); const position = localPositions[node.id] || node; drag.current = { type: 'node', nodeId: node.id, pointerX: event.clientX, pointerY: event.clientY, x: position.x, y: position.y, moved: false }; };
   const onPointerMove = event => { if (!drag.current) return; const current = drag.current; const dx = event.clientX - current.pointerX; const dy = event.clientY - current.pointerY; if (current.type === 'node') { if (Math.abs(dx) + Math.abs(dy) > 4) current.moved = true; setLocalPositions(positions => ({ ...positions, [current.nodeId]: { ...positions[current.nodeId], x: current.x + dx / viewport.scale, y: current.y + dy / viewport.scale, dragged: true } })); } else setViewport(view => ({ ...view, x: current.x + dx, y: current.y + dy })); };
   const stopDrag = () => { if (drag.current?.type === 'node' && drag.current.moved) suppressClick.current = true; drag.current = null; };
-  const onWheel = event => { zoom(event.deltaY > 0 ? -.08 : .08); };
   const positionOf = node => localPositions[node.id] || node;
   const pathFor = (source, target) => {
     const sourcePosition = positionOf(source);
@@ -136,17 +185,24 @@ function MindMap({ topic, graph, onNodeClick }) {
   const rootPos = rootNode ? positionOf(rootNode) : null;
   const orbX = rootPos ? rootPos.x + rootPos.width / 2 : 185;
   const orbY = rootPos ? rootPos.y + rootPos.height / 2 : 306;
-  return <div className="map-card map-card-full"><div className="map-header"><div><div className="eyebrow">{topic.id} / NEURAL MAP</div><h2>Kéo node, phóng to và tự mở rộng ý</h2></div><div className="map-header-right"><div className="progress">{nodes.length} / {graph?.totalNodes || nodes.length} node hiện</div><div className="graph-controls"><button onClick={() => zoom(-.12)} aria-label="Thu nhỏ">−</button><span>{Math.round(viewport.scale * 100)}%</span><button onClick={() => zoom(.12)} aria-label="Phóng to">+</button><button onClick={reset} aria-label="Đặt lại graph">↺</button></div></div></div><div className="map-canvas graph-canvas graph-canvas-full" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag} onWheel={onWheel}><div className="graph-stage" style={{ transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.scale})` }}><svg className="graph-edges" viewBox="0 0 1100 620" aria-hidden="true">{edges.map(edge => { const source = nodeMap[edge.source]; const target = nodeMap[edge.target]; return source && target ? <path key={`${edge.source}-${edge.target}`} className="edge edge-live" d={pathFor(source, target)} /> : null; })}<circle className="edge-orb" cx={orbX} cy={orbY} r="5" /></svg>{nodes.map((node, index) => { const position = positionOf(node); const isLeaf = node.isLeaf ?? !node.hasChildren; return <button key={node.id} className={`graph-node ${node.id === graph.rootId ? 'core' : `branch branch-${index % 3 + 1}`} ${isLeaf ? 'leaf' : 'expandable'} ${drag.current?.nodeId === node.id ? 'dragging' : ''}`} style={{ left: position.x, top: position.y, width: position.width, minHeight: position.height }} onPointerDown={event => onNodePointerDown(event, node)} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } onNodeClick(node); }}><span className="node-eyebrow">{node.eyebrow}</span><span className="node-title">{node.label}</span><span className="node-caption">{node.caption}</span><span className="node-pulse" /></button>; })}</div><div className="graph-hint"><span>✥</span>Nhấn giữ node để kéo · kéo nền để pan · lăn chuột để zoom</div></div></div>;
+  return <div className="map-card map-card-full"><div className="map-header"><div><div className="eyebrow">{topic.id} / NEURAL MAP</div><h2>Kéo node, phóng to và tự mở rộng ý</h2></div><div className="map-header-right"><div className="progress">{nodes.length} / {graph?.totalNodes || nodes.length} node hiện</div><div className="recall-toggle-row"><span className="toggle-label">BẮT BUỘC RECALL</span><button className={`switch ${recallEnabled ? 'on' : 'off'}`} onClick={() => setRecallEnabled(!recallEnabled)} aria-label="Bật tắt yêu cầu trả lời trước khi mở nhánh mới"><span className="slider" /><span className="switch-text">{recallEnabled ? 'ON' : 'OFF'}</span></button></div><div className="graph-controls"><button onClick={() => zoom(-.12)} aria-label="Thu nhỏ">−</button><span>{Math.round(viewport.scale * 100)}%</span><button onClick={() => zoom(.12)} aria-label="Phóng to">+</button><button onClick={reset} aria-label="Đặt lại graph">↺</button></div></div></div><div ref={canvasRef} className="map-canvas graph-canvas graph-canvas-full" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag}><div className="graph-stage" style={{ transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.scale})` }}><svg className="graph-edges" viewBox="0 0 1100 620" aria-hidden="true">{edges.map(edge => { const source = nodeMap[edge.source]; const target = nodeMap[edge.target]; return source && target ? <path key={`${edge.source}-${edge.target}`} className="edge edge-live" d={pathFor(source, target)} /> : null; })}<circle className="edge-orb" cx={orbX} cy={orbY} r="5" /></svg>{nodes.map((node, index) => { const position = positionOf(node); const isLeaf = node.isLeaf ?? !node.hasChildren; return <button key={node.id} className={`graph-node ${node.id === graph.rootId ? 'core' : `branch branch-${index % 3 + 1}`} ${isLeaf ? 'leaf' : 'expandable'} ${drag.current?.nodeId === node.id ? 'dragging' : ''}`} style={{ left: position.x, top: position.y, width: position.width, minHeight: position.height }} onPointerDown={event => onNodePointerDown(event, node)} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } onNodeClick(node); }}><span className="node-eyebrow">{node.eyebrow}</span><span className="node-title">{node.label}</span><span className="node-caption">{node.caption}</span><span className="node-pulse" /></button>; })}</div><div className="graph-hint"><span>✥</span>Nhấn giữ node để kéo · kéo nền để pan · lăn chuột để zoom</div></div></div>;
 }
 
 function RecallPartner({ lecture }) {
   const [answer, setAnswer] = useState('');
   const [isMinimized, setIsMinimized] = useState(false);
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'ai', text: '“Thầy ơi, vì sao một prompt có context tốt lại cho câu trả lời đáng tin hơn?”' }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    const initialQuestion = lecture.id === 'DAY 1'
+      ? '“Thầy ơi, vì sao một prompt có context tốt lại cho câu trả lời đáng tin hơn?”'
+      : `“Thầy ơi, thầy có thể giải thích sơ bộ cốt lõi của bài học ${lecture.title} không?”`;
+    setMessages([
+      { id: Date.now(), sender: 'ai', text: initialQuestion }
+    ]);
+  }, [lecture?.id]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -230,10 +286,11 @@ function RecallPartner({ lecture }) {
   );
 }
 
-function LearningView({ activeTopic, setActiveTopic, graph, onNodeClick }) {
+function LearningView({ activeTopic, setActiveTopic, graph, onNodeClick, recallEnabled, setRecallEnabled }) {
   const dueLecture = lectures.find(lecture => lecture.learnedAt) || lectures[0];
+  const currentLecture = lectures.find(l => l.id === activeTopic?.id) || dueLecture;
   const displayTopic = activeTopic || { id: 'ALL LESSONS', tag: '00 / OVERVIEW', title: 'TẤT CẢ BÀI GIẢNG', description: 'Toàn bộ lộ trình 5 bài học', node: '5 bài giảng trong lộ trình' };
-  return <main id="learning"><section className="hero"><div><div className="eyebrow">LEARNING SPACE / 05</div><h1>Học sâu hơn.<br />Nhớ lâu hơn.</h1></div><div className="hero-copy"><p>Biến kiến thức phức tạp thành những nhánh tư duy nhỏ — rồi tự gọi lại chúng bằng đối thoại.</p><div className="day-progress">{Array.from({ length: 7 }, (_, i) => <span className={i < 3 ? 'active' : ''} key={i} />)}</div></div></section><section className="lesson-picker"><div><div className="eyebrow">CHỌN BÀI HỌC</div><strong>{displayTopic.title}</strong><span>{activeTopic ? displayTopic.description : 'Xem tổng quan toàn bộ 5 bài trong lộ trình'}</span></div><label className="lesson-select"><span>Đang học</span><select value={activeTopic?.id || 'ALL'} onChange={e => setActiveTopic(e.target.value === 'ALL' ? null : topics.find(topic => topic.id === e.target.value))}><option value="ALL">Tất cả bài giảng</option>{topics.map(topic => <option key={topic.id} value={topic.id}>{topic.id} · {topic.title}</option>)}</select></label></section><section className="workspace"><MindMap topic={displayTopic} graph={graph} onNodeClick={onNodeClick} /><RecallPartner lecture={dueLecture} /></section></main>;
+  return <main id="learning"><section className="hero"><div><div className="eyebrow">LEARNING SPACE / 05</div><h1>Học sâu hơn.<br />Nhớ lâu hơn.</h1></div><div className="hero-copy"><p>Biến kiến thức phức tạp thành những nhánh tư duy nhỏ — rồi tự gọi lại chúng bằng đối thoại.</p><div className="day-progress">{Array.from({ length: 7 }, (_, i) => <span className={i < 3 ? 'active' : ''} key={i} />)}</div></div></section><section className="lesson-picker"><div><div className="eyebrow">CHỌN BÀI HỌC</div><strong>{displayTopic.title}</strong><span>{activeTopic ? displayTopic.description : 'Xem tổng quan toàn bộ 5 bài trong lộ trình'}</span></div><label className="lesson-select"><span>Đang học</span><select value={activeTopic?.id || 'ALL'} onChange={e => setActiveTopic(e.target.value === 'ALL' ? null : topics.find(topic => topic.id === e.target.value))}><option value="ALL">Tất cả bài giảng</option>{topics.map(topic => <option key={topic.id} value={topic.id}>{topic.id} · {topic.title}</option>)}</select></label></section><section className="workspace"><MindMap topic={displayTopic} graph={graph} onNodeClick={onNodeClick} recallEnabled={recallEnabled} setRecallEnabled={setRecallEnabled} /><RecallPartner lecture={currentLecture} /></section></main>;
 }
 
 function LibraryView({ orderedLectures, moveLecture, selectedId, setSelectedId }) {
@@ -259,15 +316,53 @@ function App() {
   const [selectedNode, setSelectedNode] = useState(null);
   const [orderedLectures, setOrderedLectures] = useState(lectures);
   const [selectedLectureId, setSelectedLectureId] = useState(lectures[0].id);
-  useEffect(() => { fetch(`${API_ORIGIN}/api/graphs/day1`).then(response => { if (!response.ok) throw new Error(`Graph API ${response.status}`); return response.json(); }).then(setGraph).catch(() => setGraph({ nodes: [], edges: [], totalNodes: 0, rootId: null })); }, []);
-  const openNode = node => {
-    // Leaf nodes are endpoints: clicking them intentionally does nothing.
-    // Every node with children must pass through recall before its branch is revealed.
-    if (node.hasChildren || node.childrenCount > 0) setSelectedNode(node);
+  const [recallEnabled, setRecallEnabled] = useState(true);
+
+  const getDayId = topic => {
+    return topic ? topic.id.toLowerCase().replace(' ', '') : 'day1';
   };
-  const submitRecall = async answer => { const response = await fetch(`${API_ORIGIN}/api/graphs/day1/expand`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nodeId: selectedNode.id, answer }) }); const result = await response.json(); if (!response.ok) return; setGraph(current => ({ ...current, nodes: [...current.nodes, ...result.children.filter(child => !current.nodes.some(node => node.id === child.id))], edges: [...current.edges, ...result.edges.filter(edge => !current.edges.some(item => item.source === edge.source && item.target === edge.target))] })); setSelectedNode(null); };
+
+  useEffect(() => {
+    const dayId = getDayId(activeTopic);
+    fetch(`${API_ORIGIN}/api/graphs/${dayId}`)
+      .then(response => {
+        if (!response.ok) throw new Error(`Graph API ${response.status}`);
+        return response.json();
+      })
+      .then(setGraph)
+      .catch(() => setGraph({ nodes: [], edges: [], totalNodes: 0, rootId: null }));
+  }, [activeTopic]);
+
+  const openNode = async node => {
+    if (node.hasChildren || node.childrenCount > 0) {
+      if (recallEnabled) {
+        setSelectedNode(node);
+      } else {
+        await submitRecall('Auto-unlock', node);
+      }
+    }
+  };
+
+  const submitRecall = async (answer, nodeOverride) => {
+    const targetNode = nodeOverride || selectedNode;
+    if (!targetNode) return;
+    const dayId = getDayId(activeTopic);
+    const response = await fetch(`${API_ORIGIN}/api/graphs/${dayId}/expand`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nodeId: targetNode.id, answer })
+    });
+    const result = await response.json();
+    if (!response.ok) return;
+    setGraph(current => ({
+      ...current,
+      nodes: [...current.nodes, ...result.children.filter(child => !current.nodes.some(node => node.id === child.id))],
+      edges: [...current.edges, ...result.edges.filter(edge => !current.edges.some(item => item.source === edge.source && item.target === edge.target))]
+    }));
+    setSelectedNode(null);
+  };
   const moveLecture = (index, direction) => setOrderedLectures(items => { const next = [...items]; const target = index + direction; if (target < 0 || target >= next.length) return items; [next[index], next[target]] = [next[target], next[index]]; return next; });
-  const page = view === 'library' ? <LibraryView orderedLectures={orderedLectures} moveLecture={moveLecture} selectedId={selectedLectureId} setSelectedId={setSelectedLectureId} /> : view === 'review' ? <ReviewView orderedLectures={orderedLectures} /> : <LearningView activeTopic={activeTopic} setActiveTopic={setActiveTopic} graph={graph} onNodeClick={openNode} />;
+  const page = view === 'library' ? <LibraryView orderedLectures={orderedLectures} moveLecture={moveLecture} selectedId={selectedLectureId} setSelectedId={setSelectedLectureId} /> : view === 'review' ? <ReviewView orderedLectures={orderedLectures} /> : <LearningView activeTopic={activeTopic} setActiveTopic={setActiveTopic} graph={graph} onNodeClick={openNode} recallEnabled={recallEnabled} setRecallEnabled={setRecallEnabled} />;
   return (
     <>
       <Header view={view} setView={setView} />
