@@ -20,8 +20,9 @@ const lectures = [
 
 const topics = lectures.map((lecture, index) => ({ id: lecture.id, tag: `${String(index + 1).padStart(2, '0')} / ${lecture.tag}`, title: lecture.title, description: lecture.summary, node: lecture.node }));
 const spacing = [1, 3, 7, 14, 30];
-const API_ORIGIN = typeof window === 'undefined' ? 'http://127.0.0.1:8000' : `${window.location.protocol}//${window.location.hostname}:8000`;
-const GRAPH_API_ORIGIN = API_ORIGIN;
+const GRAPH_API_ORIGIN = typeof window === 'undefined' ? 'http://127.0.0.1:8787' : `${window.location.protocol}//${window.location.hostname}:8787`;
+const AGENT_ORIGIN = typeof window === 'undefined' ? 'http://127.0.0.1:8000' : `${window.location.protocol}//${window.location.hostname}:8000`;
+const API_ORIGIN = AGENT_ORIGIN;
 const formatDate = date => new Intl.DateTimeFormat('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' }).format(date);
 const addDays = (date, days) => { const next = new Date(date); next.setDate(next.getDate() + days); return next; };
 
@@ -325,7 +326,7 @@ function RecallPartner({ lecture }) {
     setMessages(current => [...current, { id: agentMessageId, sender: 'ai', text: '' }]);
     try {
       const history = nextMessages.map(item => ({ role: item.sender === 'ai' ? 'assistant' : 'user', content: item.text }));
-      const response = await fetch(`${API_ORIGIN}/api/feynman/stream`, {
+      const response = await fetch(`${AGENT_ORIGIN}/api/feynman/stream`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session_id: sessionId.current, lesson_id: selectedLessonId, mode, manual_session: true, loop, n_loop: nLoop, history })
       });
