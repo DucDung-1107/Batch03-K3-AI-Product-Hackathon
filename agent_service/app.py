@@ -150,17 +150,110 @@ def run_agent(payload: FeynmanRequest) -> dict[str, Any]:
     return result
 
 
-def flatten_graph(source: dict[str, Any]) -> dict[str, Any]:
+def flatten_graph(source: dict[str, Any], day_id: str) -> dict[str, Any]:
     nodes: list[dict[str, Any]] = []
     edges: list[dict[str, str]] = []
-    def walk(item: dict[str, Any], parent_id: str | None = None, depth: int = 0) -> None:
+    raw_nodes: list[dict[str, Any]] = []
+
+    def build_hierarchy(item: dict[str, Any], parent_id: str | None = None, depth: int = 0) -> None:
         children = item.get("children", [])
-        node = {"id": item["id"], "parentId": parent_id, "label": item["label"], "eyebrow": "DAY 1 · CORE" if depth == 0 else f"D{depth} · BRANCH", "caption": item.get("detail", item.get("clue", "")), "question": item.get("clue", f"Hãy giải thích lại {item['label']}"), "depth": depth, "x": 425 if depth == 0 else 35 + (len(nodes) % 6) * 135, "y": 245 if depth == 0 else 100 + (len(nodes) % 4) * 110, "width": 250 if depth == 0 else 225, "height": 112 if depth == 0 else 88, "childrenCount": len(children), "hasChildren": bool(children), "isLeaf": not children}
+        prefix = day_id.upper().replace("DAY", "DAY ")
+        day_prefix = day_id.upper().replace("DAY", "D")
+        node = {
+            "id": item["id"],
+            "parentId": parent_id,
+            "label": item["label"],
+            "eyebrow": f"{prefix} · CORE" if depth == 0 else f"{day_prefix} · BRANCH",
+            "caption": item.get("detail", item.get("clue", "")),
+            "question": item.get("clue", f"Hãy giải thích lại ý chính của “{item['label']}”."),
+            "detail": item.get("detail", ""),
+            "url": item.get("url", None),
+            "depth": depth,
+            "width": 250 if depth == 0 else 225,
+            "height": 112 if depth == 0 else 88,
+            "childrenCount": len(children),
+            "hasChildren": len(children) > 0,
+            "isLeaf": len(children) == 0,
+            "children": children,
+        }
+        raw_nodes.append(node)
+        for child in children:
+            build_hierarchy(child, node["id"], depth + 1)
+
+    build_hierarchy(source["root"])
+
+    def get_node_height(n: dict[str, Any]) -> float:
+        return 180.0 if n.get("depth", 0) == 0 else 150.0
+
+    gap = 24.0
+    subtree_heights: dict[str, float] = {}
+
+    def compute_height(node: dict[str, Any]) -> None:
+        children = node.get("children", [])
+        self_height = get_node_height(node)
+        if not children:
+            subtree_heights[node["id"]] = self_height
+        else:
+            for child_item in children:
+                child_node = next((n for n in raw_nodes if n["id"] == child_item["id"]), None)
+                if child_node:
+                    compute_height(child_node)
+            children_sum = sum(subtree_heights.get(child_item["id"], 88.0) for child_item in children)
+            children_gaps = (len(children) - 1) * gap
+            subtree_heights[node["id"]] = max(self_height, children_sum + children_gaps)
+
+    root_node = next((n for n in raw_nodes if n["id"] == source["root"]["id"]), None)
+    if root_node:
+        compute_height(root_node)
+
+    for node in raw_nodes:
+        if node["id"] not in subtree_heights:
+            subtree_heights[node["id"]] = get_node_height(node)
+
+    node_y_map: dict[str, float] = {}
+
+    def layout_node(node: dict[str, Any], start_y: float) -> None:
+        children = node.get("children", [])
+        self_height = get_node_height(node)
+        if not children:
+            node_y_map[node["id"]] = start_y + (subtree_heights[node["id"]] - self_height) / 2.0
+        else:
+            current_y = start_y
+            for child_item in children:
+                child_node = next((n for n in raw_nodes if n["id"] == child_item["id"]), None)
+                if child_node:
+                    layout_node(child_node, current_y)
+                    current_y += subtree_heights[child_node["id"]] + gap
+            first_child_id = children[0]["id"]
+            last_child_id = children[-1]["id"]
+            first_y = node_y_map[first_child_id]
+            last_y = node_y_map[last_child_id]
+            node_y_map[node["id"]] = (first_y + last_y) / 2.0
+
+    if root_node:
+        layout_node(root_node, 0.0)
+
+    next_disconnected_y = subtree_heights.get(root_node["id"], 200.0) + gap if root_node else 0.0
+    for node in raw_nodes:
+        if node["id"] not in node_y_map:
+            node_y_map[node["id"]] = next_disconnected_y
+            next_disconnected_y += get_node_height(node) + gap
+
+    offset_y = 230.0 - node_y_map.get(root_node["id"], 0.0) if root_node else 230.0
+
+    spacing_x = 380
+    start_x = 60
+
+    for node in raw_nodes:
+        node["x"] = start_x + node["depth"] * spacing_x
+        node["y"] = node_y_map[node["id"]] + offset_y
+        if "children" in node:
+            del node["children"]
         nodes.append(node)
-        if parent_id: edges.append({"source": parent_id, "target": node["id"]})
-        for child in children: walk(child, node["id"], depth + 1)
-    walk(source["root"])
-    return {"id": "day1-foundation", "title": "AI & LLM Foundation", "rootId": source["root"]["id"], "nodes": nodes, "edges": edges}
+        if node["parentId"]:
+            edges.append({"source": node["parentId"], "target": node["id"]})
+
+    return {"id": day_id, "title": source.get("title", "Untitled Map"), "rootId": source["root"]["id"], "nodes": nodes, "edges": edges}
 
 
 def run_agent(payload: FeynmanRequest) -> dict[str, Any]:
@@ -217,9 +310,18 @@ def agent_log() -> dict[str, str]:
     return {"file": str(LOG_FILE)}
 
 
+def load_day_graph(day_id: str) -> dict[str, Any]:
+    if day_id not in {f"day{index}" for index in range(1, 6)}:
+        raise HTTPException(status_code=404, detail="Không tìm thấy sơ đồ bài học.")
+    path = ROOT / "src" / "graph" / f"{day_id}.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Không tìm thấy sơ đồ bài học.")
+    return flatten_graph(json.loads(path.read_text(encoding="utf-8")), day_id)
+
+
 @app.get("/api/graphs/day1")
 def graph_day1() -> dict[str, Any]:
-    graph = flatten_graph(json.loads(GRAPH_PATH.read_text(encoding="utf-8")))
+    graph = load_day_graph("day1")
     root_id = graph["rootId"]
     visible = [node for node in graph["nodes"] if node["id"] == root_id or node["parentId"] == root_id]
     visible_ids = {node["id"] for node in visible}
@@ -232,18 +334,9 @@ def expand_graph(body: dict[str, str]) -> dict[str, Any]:
     node_id = body.get("nodeId")
     if not answer or not node_id:
         raise HTTPException(status_code=400, detail="Cần nodeId và câu trả lời.")
-    graph = flatten_graph(json.loads(GRAPH_PATH.read_text(encoding="utf-8")))
+    graph = load_day_graph("day1")
     children = [node for node in graph["nodes"] if node["parentId"] == node_id]
     return {"nodeId": node_id, "accepted": True, "children": children, "edges": [edge for edge in graph["edges"] if edge["source"] == node_id]}
-
-
-def load_day_graph(day_id: str) -> dict[str, Any]:
-    if day_id not in {f"day{index}" for index in range(1, 6)}:
-        raise HTTPException(status_code=404, detail="Không tìm thấy sơ đồ bài học.")
-    path = ROOT / "src" / "graph" / f"{day_id}.json"
-    if not path.exists():
-        raise HTTPException(status_code=404, detail="Không tìm thấy sơ đồ bài học.")
-    return flatten_graph(json.loads(path.read_text(encoding="utf-8")))
 
 
 @app.get("/api/graphs/{day_id}")
