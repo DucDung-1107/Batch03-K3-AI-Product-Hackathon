@@ -19,7 +19,8 @@ function flattenGraph(source) {
   const nodes = [];
   const edges = [];
 
-  const walk = (item, parentId = null, depth = 0, siblingIndex = 0, siblingCount = 1) => {
+  const rawNodes = [];
+  const buildHierarchy = (item, parentId = null, depth = 0) => {
     const children = item.children || [];
     const node = {
       id: item.id,
@@ -31,40 +32,63 @@ function flattenGraph(source) {
       detail: item.detail || '',
       url: item.url || null,
       depth,
-      x: 0,
-      y: 0,
       width: depth === 0 ? 250 : 225,
       height: depth === 0 ? 112 : 88,
       childrenCount: children.length,
       hasChildren: children.length > 0,
       isLeaf: children.length === 0,
+      children: children,
     };
+    rawNodes.push(node);
+    children.forEach(child => buildHierarchy(child, node.id, depth + 1));
+  };
+  buildHierarchy(source.root);
 
-    if (depth === 0) {
-      node.x = 425;
-      node.y = 245;
-    } else if (parentId === source.root.id) {
-      const topLevelPositions = [
-        // Keep the first six branches inside the canvas safe area. The
-        // floating lesson/recall panels live in the corners.
-        { x: 35, y: 145 }, { x: 35, y: 365 },
-        { x: 300, y: 475 }, { x: 575, y: 475 },
-        { x: 700, y: 145 }, { x: 700, y: 365 },
-      ];
-      Object.assign(node, topLevelPositions[siblingIndex] || topLevelPositions[0]);
+  // Compute Y coordinates using post-order leaf positioning
+  let nextLeafY = 0;
+  const spacingY = 120;
+  const nodeYMap = {};
+
+  const layoutNode = (node) => {
+    const children = node.children || [];
+    if (children.length === 0) {
+      nodeYMap[node.id] = nextLeafY * spacingY;
+      nextLeafY++;
     } else {
-      const parent = nodes.find(candidate => candidate.id === parentId);
-      const direction = parent && parent.x < 550 ? -1 : 1;
-      node.x = clamp((parent?.x || 425) + direction * 285, 20, 855);
-      node.y = clamp((parent?.y || 245) + (siblingIndex - (siblingCount - 1) / 2) * 125, 20, 515);
+      children.forEach(childItem => {
+        const childNode = rawNodes.find(n => n.id === childItem.id);
+        if (childNode) layoutNode(childNode);
+      });
+      const firstChildId = children[0].id;
+      const lastChildId = children[children.length - 1].id;
+      const firstY = nodeYMap[firstChildId];
+      const lastY = nodeYMap[lastChildId];
+      nodeYMap[node.id] = (firstY + lastY) / 2;
     }
-
-    nodes.push(node);
-    if (parentId) edges.push({ source: parentId, target: node.id });
-    children.forEach((child, index) => walk(child, node.id, depth + 1, index, children.length));
   };
 
-  walk(source.root);
+  const rootNode = rawNodes.find(n => n.id === source.root.id);
+  if (rootNode) {
+    layoutNode(rootNode);
+  }
+
+  // Adjust Y coordinates to center the root node at Y = 250
+  const rootY = rootNode ? nodeYMap[rootNode.id] : 0;
+  const offsetY = 250 - rootY;
+
+  const spacingX = 320;
+  const startX = 60;
+
+  rawNodes.forEach(node => {
+    node.x = startX + node.depth * spacingX;
+    node.y = (nodeYMap[node.id] || 0) + offsetY;
+    delete node.children;
+    nodes.push(node);
+    if (node.parentId) {
+      edges.push({ source: node.parentId, target: node.id });
+    }
+  });
+
   return { id: 'day1-foundation', title: 'AI & LLM Foundation', rootId: source.root.id, nodes, edges };
 }
 
