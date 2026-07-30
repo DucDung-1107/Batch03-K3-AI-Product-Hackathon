@@ -1,0 +1,139 @@
+{
+  "format": "hierarchical-mindmap",
+  "version": "2.0",
+  "title": "Prompt Engineering & Tool Calling",
+  "instructions_for_renderer": {
+    "layout": "radial",
+    "root_position": "center",
+    "branch_style": "curved",
+    "expand_from": "center_outward",
+    "show_fields": ["label"],
+    "use_clue_as": "node_tooltip_or_speaker_note",
+    "use_detail_as": "node_tooltip_or_detail_panel",
+    "color_rule": "inherit_parent_color_unless_color_is_set"
+  },
+  "root": {
+    "id": "root",
+    "label": "PROMPT & TOOL\nCALLING",
+    "color": "#F59E0B",
+    "clue": "Prompt đóng vai trò là giao diện lập trình kết nối ý định của con người và hành vi mô hình; Tool calling là cơ chế tương tác với thế giới thực.",
+    "children": [
+      {
+        "id": "fundamentals",
+        "label": "Nền tảng thiết kế\nlời nhắc",
+        "color": "#22C55E",
+        "clue": "Nguyên lý cơ bản của prompt: tính cụ thể, cấu trúc RTCF và các tham số lấy mẫu.",
+        "children": [
+          {
+            "id": "rtcf-struc",
+            "label": "Khung cấu trúc RTCF",
+            "children": [
+              {"id": "rtcf-role", "label": "ROLE (Vai trò)", "detail": "Định hình góc nhìn, tone giọng, phong cách viết và lựa chọn thư viện kỹ thuật."},
+              {"id": "rtcf-task", "label": "TASK (Nhiệm vụ)", "detail": "Yêu cầu hành động cụ thể cần thực hiện một cách chi tiết, giảm thiểu mơ hồ."},
+              {"id": "rtcf-context", "label": "CONTEXT (Bối cảnh)", "detail": "Cung cấp nền tảng thông tin xung quanh nhiệm vụ như công nghệ sử dụng, đối tượng thụ hưởng."},
+              {"id": "rtcf-format", "label": "FORMAT (Định dạng)", "detail": "Định hình chính xác hình thức đầu ra để parser lập trình có thể đọc tự động."}
+            ]
+          },
+          {
+            "id": "prompt-types",
+            "label": "Phân loại Prompt",
+            "children": [
+              {"id": "type-instruction", "label": "Instruction Prompt", "detail": "Ra lệnh trực tiếp để thực hiện một tác vụ đơn lẻ, độc lập."},
+              {"id": "type-conversation", "label": "Conversation Prompt", "detail": "Duy trì và quản lý bối cảnh qua nhiều lượt hội thoại tương tác."},
+              {"id": "type-system", "label": "System Prompt", "detail": "Thiết lập chính sách, ranh giới hành vi, quy chuẩn an toàn và hợp đồng đầu ra."}
+            ]
+          },
+          {
+            "id": "neg-prompting",
+            "label": "Negative Prompting",
+            "detail": "Khi cấm AI làm gì đó, hãy viết kèm phương án thay thế tích cực thay vì chỉ nói 'đừng làm x'."
+          },
+          {
+            "id": "sampling-params",
+            "label": "Tham số lấy mẫu",
+            "children": [
+              {"id": "param-temp", "label": "Temperature (0-1.5)", "detail": "0.0 cho phân loại/trích xuất (deterministic); 0.3-0.5 cho chatbot; 0.7-1.0 cho sáng tạo; 1.0+ cho brainstorming."},
+              {"id": "param-topp", "label": "Top_p", "detail": "Chọn token trong khối xác suất tích lũy. Thường dùng 0.9-0.95."},
+              {"id": "param-stop", "label": "Stop Sequences", "detail": "Dừng sinh khi gặp chuỗi quy định, dùng kiểm soát output cấu trúc."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "advanced-prompting",
+        "label": "Kỹ thuật nâng cao\n& System Prompt",
+        "color": "#3B82F6",
+        "clue": "Các kỹ thuật thiết kế lời nhắc nâng cao phục vụ tác vụ phức tạp.",
+        "children": [
+          {"id": "adv-zero", "label": "Zero-shot", "detail": "Không có ví dụ mẫu. Nhanh, rẻ, dễ sai định dạng với tác vụ khó."},
+          {"id": "adv-one", "label": "One-shot", "detail": "Cung cấp đúng 1 ví dụ mẫu mô tả định dạng mong muốn."},
+          {"id": "adv-few", "label": "Few-shot", "detail": "Cung cấp 2-5 ví dụ mẫu có cấu trúc hoàn chỉnh giúp tăng tính nhất quán."},
+          {"id": "adv-cot", "label": "Chain-of-Thought (CoT)", "detail": "Yêu cầu mô hình suy luận từng bước trước khi ra đáp án. Tăng logic nhưng tăng chi phí/trễ."},
+          {"id": "sys-rules", "label": "Quy tắc System Prompt", "detail": "Quy định rõ ràng ranh giới hành vi, giới hạn và định dạng. Thường sử dụng thẻ XML để bọc dữ liệu context."}
+        ]
+      },
+      {
+        "id": "format-injection",
+        "label": "Format Drift\n& Prompt Injection",
+        "color": "#8B5CF6",
+        "clue": "Các rủi ro vận hành chính của Prompt trong production và biện pháp phòng ngừa.",
+        "children": [
+          {
+            "id": "format-drift",
+            "label": "Format Drift",
+            "clue": "Vỡ định dạng đầu ra",
+            "children": [
+              {"id": "drift-causes", "label": "Nguyên nhân", "detail": "Tác vụ quá phức tạp, model nhỏ, temperature cao, context quá dài."},
+              {"id": "drift-mitigations", "label": "Biện pháp", "detail": "Sử dụng Structured Outputs (JSON Schema của API), mô tả format nghiêm ngặt, post-validation parser."}
+            ]
+          },
+          {
+            "id": "prompt-injection",
+            "label": "Prompt Injection",
+            "clue": "Bẻ khóa/ghi đè chỉ thị của AI",
+            "children": [
+              {"id": "inj-types", "label": "Phân loại", "detail": "Direct injection (user cố tình ghi đè prompt) và Indirect injection (mã độc ẩn trong tài liệu nạp vào)."},
+              {"id": "inj-defenses", "label": "Phòng thủ", "detail": "Cấu trúc prompt dạng bánh mì kẹp (Sandwich), ưu tiên System prompt, làm sạch input, lọc output."}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "tool-calling",
+        "label": "Cơ chế gọi công cụ\n(Tool Calling)",
+        "color": "#06B6D4",
+        "clue": "Cơ chế native giúp LLM kết nối API và hành động.",
+        "children": [
+          {"id": "tool-def", "label": "Định nghĩa công cụ", "detail": "Khai báo tên (name), mô tả (description) và tham số đầu vào dưới dạng JSON Schema."},
+          {"id": "tool-flow", "label": "Chu kỳ API Flow", "detail": "1. User Prompt + Tools Definition -> 2. LLM trả về Tool Call Request (JSON) -> 3. Local code thực thi công cụ -> 4. Gửi kết quả (Observation) lại cho LLM -> 5. LLM sinh Final Answer."},
+          {
+            "id": "tool-constraints",
+            "label": "Hạn chế & Lưu ý",
+            "detail": "Đòi hỏi model hỗ trợ gọi tool; mô tả công cụ phải cực kỳ rõ ràng; code thực thi phải xử lý lỗi tốt (exception handling) để trả về cho LLM."
+          }
+        ]
+      },
+      {
+        "id": "tool-security",
+        "label": "Bảo mật & Rào chắn\nkhi gọi công cụ",
+        "color": "#EC4899",
+        "clue": "Đảm bảo Agent hành động an toàn, không phá hoại hệ thống.",
+        "children": [
+          {"id": "sec-risks", "label": "Rủi ro chính", "detail": "Thực thi hành động trái phép (xóa dữ liệu, gửi tiền), rò rỉ dữ liệu nhạy cảm qua API, chèn mã độc vào tham số gọi tool."},
+          {"id": "sec-measures", "label": "Biện pháp an toàn", "detail": "Quy trình con người xác nhận trước khi thực hiện hành động rủi ro lớn; áp dụng Least Privilege (phân quyền tối thiểu); làm sạch tham số (input sanitization)."}
+        ]
+      },
+      {
+        "id": "eval-opt",
+        "label": "Đánh giá & Tối ưu\nPrompt & Tools",
+        "color": "#F97316",
+        "clue": "Xây dựng chu trình đánh giá chất lượng prompt trong sản phẩm.",
+        "children": [
+          {"id": "eval-metrics", "label": "Metrics đánh giá", "detail": "Đo lường độ chính xác thông tin (accuracy), tuân thủ định dạng (format), tính nhất quán (consistency), độ trễ (latency) và chi phí (cost)."},
+          {"id": "eval-dataset", "label": "Bộ test (Golden Set)", "detail": "Xây dựng tập hợp các prompt mẫu đa dạng kèm kết quả kỳ vọng để chạy kiểm thử tự động khi sửa prompt."},
+          {"id": "eval-version", "label": "Quản lý phiên bản", "detail": "Lưu trữ prompt trong git hoặc hệ thống quản lý cấu hình, so sánh kết quả các lượt chạy (A/B testing prompt) để tối ưu."}
+        ]
+      }
+    ]
+  }
+}

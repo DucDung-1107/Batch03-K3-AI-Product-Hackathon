@@ -1,0 +1,135 @@
+{
+  "format": "hierarchical-mindmap",
+  "version": "2.0",
+  "title": "AI Product Thinking & Requirements",
+  "instructions_for_renderer": {
+    "layout": "radial",
+    "root_position": "center",
+    "branch_style": "curved",
+    "expand_from": "center_outward",
+    "show_fields": ["label"],
+    "use_clue_as": "node_tooltip_or_speaker_note",
+    "use_detail_as": "node_tooltip_or_detail_panel",
+    "color_rule": "inherit_parent_color_unless_color_is_set"
+  },
+  "root": {
+    "id": "root",
+    "label": "AI PRODUCT\n& PRD",
+    "color": "#F59E0B",
+    "clue": "Đặc tả sản phẩm AI đòi hỏi tư duy quản trị dải chất lượng, ranh giới an toàn, nghiên cứu người dùng và quản trị rủi ro nghiêm ngặt.",
+    "children": [
+      {
+        "id": "product-thinking",
+        "label": "Product Thinking\ncho AI",
+        "color": "#22C55E",
+        "clue": "Xây dựng đúng sản phẩm và tránh xây sai cách thông qua định vị giá trị.",
+        "children": [
+          {
+            "id": "failures",
+            "label": "Hai kiểu thất bại",
+            "children": [
+              {"id": "fail-wrong-thing", "label": "Build the wrong thing", "detail": "Xây dựng sai sản phẩm do không hiểu hành trình người dùng và nỗi đau thực tế."},
+              {"id": "fail-thing-wrong", "label": "Build the thing wrong", "detail": "Xây dựng sản phẩm sai cách do yêu cầu mơ hồ, thiếu tiêu chí nghiệm thu và edge cases."}
+            ]
+          },
+          {
+            "id": "software-vs-ai",
+            "label": "Software vs AI Product",
+            "children": [
+              {"id": "diff-output", "label": "Đầu ra (Output)", "detail": "Software truyền thống: Deterministic (xác định); AI Product: Probabilistic (xác suất)."},
+              {"id": "diff-dod", "label": "Định nghĩa hoàn thành", "detail": "Software: Đạt/Không đạt rõ ràng; AI Product: Yêu cầu dải chất lượng, SLA và fallbacks."},
+              {"id": "diff-loop", "label": "Vòng lặp cải tiến", "detail": "Software: Build rồi Ship; AI Product: Build -> Test -> Observe -> Calibrate -> Re-ship."}
+            ]
+          },
+          {
+            "id": "jtbd-ai",
+            "label": "Khung JTBD cho AI",
+            "children": [
+              {"id": "jtbd-func", "label": "Functional Job", "detail": "Công việc bề nổi người dùng muốn hoàn thành (ví dụ: trả lời hỗ trợ khách hàng nhanh hơn)."},
+              {"id": "jtbd-emo", "label": "Emotional Job", "detail": "Cảm giác của người dùng (ví dụ: tự tin trong quyết định xử lý, bớt lo trả lời sai chính sách)."},
+              {"id": "jtbd-soc", "label": "Social Job", "detail": "Cách người dùng muốn được nhìn nhận (ví dụ: chuyên nghiệp, phản hồi thông tin mạch lạc)."}
+            ]
+          },
+          {
+            "id": "north-star",
+            "label": "North Star Metrics",
+            "detail": "Ví dụ: AI Support Agent đo bằng tỷ lệ xử lý thành công ngay lần đầu; Tra cứu chính sách đo bằng thời gian trả lời đúng nguồn trích dẫn."
+          }
+        ]
+      },
+      {
+        "id": "responsible-ai",
+        "label": "Responsible AI\n& Quy chuẩn",
+        "color": "#3B82F6",
+        "clue": "Phát triển AI có trách nhiệm và tuân thủ các quy định pháp lý.",
+        "children": [
+          {
+            "id": "rai-pillars",
+            "label": "5 Trụ cột cốt lõi",
+            "children": [
+              {"id": "rai-fairness", "label": "Công bằng (Fairness)", "detail": "Không đưa ra kết quả thiên vị bất hợp lý đối với các nhóm đối tượng khác nhau."},
+              {"id": "rai-safety", "label": "Tin cậy & An toàn", "detail": "Đảm bảo hệ thống vận hành ổn định, có khả năng chống chịu lỗi tốt."},
+              {"id": "rai-privacy", "label": "Bảo mật & Riêng tư", "detail": "Chỉ thu thập và xử lý những phần dữ liệu thực sự cần thiết (Data Minimization)."},
+              {"id": "rai-inclusiveness", "label": "Toàn diện", "detail": "Thiết kế giao diện và khả năng phù hợp với nhiều nhóm người dùng khác nhau."},
+              {"id": "rai-transparency", "label": "Minh bạch", "detail": "Giúp người dùng hiểu rõ AI đang làm gì, giới hạn và cung cấp nguồn trích dẫn."}
+            ]
+          },
+          {
+            "id": "rai-spec",
+            "label": "Dịch sang kỹ thuật",
+            "children": [
+              {"id": "spec-bias", "label": "Giải quyết Thiên lệch", "detail": "Xây dựng Test Set đa dạng; thiết lập quy trình kiểm duyệt thủ công cho case nhạy cảm."},
+              {"id": "spec-privacy", "label": "Giải quyết Riêng tư", "detail": "Che giấu thông tin nhạy cảm (Masking), chính sách lưu trữ/xóa dữ liệu rõ ràng."},
+              {"id": "spec-transparency", "label": "Giải quyết Minh bạch", "detail": "Hiển thị dẫn nguồn tài liệu (Citation), thiết lập luồng chuyển hướng lên người thật."}
+            ]
+          },
+          {
+            "id": "eu-ai-act",
+            "label": "Đạo luật EU AI Act",
+            "detail": "Phân loại hệ thống theo các cấp độ rủi ro. Buộc thiết kế hệ thống ghi nhật ký (Logging), hiển thị tuyên bố rõ (Disclosure), xử lý ngoại lệ và quy trình phê duyệt."
+          }
+        ]
+      },
+      {
+        "id": "user-research",
+        "label": "Nghiên cứu người dùng\n(User Research)",
+        "color": "#8B5CF6",
+        "clue": "Thấu hiểu nhu cầu kiểm soát, niềm tin và hành vi của người dùng đối với AI.",
+        "children": [
+          {
+            "id": "persona-ai",
+            "label": "4 Chiều kích Persona AI",
+            "children": [
+              {"id": "pers-literacy", "label": "AI Literacy Level", "detail": "Mức độ am hiểu về công nghệ và cách ra lệnh cho AI của người dùng."},
+              {"id": "pers-willingness", "label": "Automation Willingness", "detail": "Sự cởi mở trong việc giao quyền ra quyết định cho thuật toán."},
+              {"id": "pers-tolerance", "label": "Error Tolerance", "detail": "Giới hạn mà người dùng có thể chấp nhận khi mô hình đưa ra câu trả lời chưa chính xác."},
+              {"id": "pers-explainability", "label": "Explainability Need", "detail": "Yêu cầu của người dùng về việc hệ thống phải giải trình logic tại sao đưa ra kết quả."}
+            ]
+          },
+          {
+            "id": "feedback-loops",
+            "label": "Thiết kế Feedback Loops",
+            "detail": "Thiết kế phản hồi ngầm định (Implicit: copy text, thời gian đọc, chỉnh sửa) và phản hồi tường minh (Explicit: Like/Dislike, chọn lý do lỗi)."
+          }
+        ]
+      },
+      {
+        "id": "prd-risk",
+        "label": "PRD & Quản trị rủi ro\n(Risk Management)",
+        "color": "#06B6D4",
+        "clue": "Đặc tả tài liệu PRD, xây ma trận rủi ro và xác định điều kiện Go/No-Go.",
+        "children": [
+          {
+            "id": "risk-register",
+            "label": "Danh mục rủi ro",
+            "children": [
+              {"id": "risk-formula", "label": "Điểm rủi ro", "detail": "Điểm rủi ro = Khả năng xảy ra (Likelihood) × Mức độ ảnh hưởng (Impact)."},
+              {"id": "risk-mandatory", "label": "5 Rủi ro bắt buộc", "detail": "1. Hallucination (Ảo tưởng); 2. Bias (Thiên lệch); 3. Privacy (Riêng tư); 4. Cost (Chi phí); 5. Adoption (Người dùng không sử dụng)."}
+            ]
+          },
+          {"id": "go-nogo", "label": "Điều kiện Go/No-Go", "detail": "Ngưỡng chất lượng tối thiểu, cam kết an toàn bảo mật và rào chắn vận hành để quyết định có phát hành sản phẩm hay không."}
+        ]
+      }
+    ]
+  }
+}
