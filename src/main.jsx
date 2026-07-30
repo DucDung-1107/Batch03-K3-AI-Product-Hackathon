@@ -557,7 +557,7 @@ function LegacyRecallPartner({ lecture }) {
   );
 }
 
-function RecallPartner({ lecture, setActiveTopic, panelMode, setPanelMode, panelSize, setPanelSize }) {
+function RecallPartner({ lecture, setActiveTopic, panelMode, setPanelMode, panelSize, setPanelSize, onCompleteRecall }) {
   const [selectedLessonId, setSelectedLessonId] = useState(lecture?.id || 'DAY 1');
   const [messages, setMessages] = useState([]);
   const [answer, setAnswer] = useState('');
@@ -622,6 +622,9 @@ function RecallPartner({ lecture, setActiveTopic, panelMode, setPanelMode, panel
       };
       while (true) { const { value, done: streamDone } = await reader.read(); if (streamDone) break; buffer += decoder.decode(value, { stream: true }); const blocks = buffer.split('\n\n'); buffer = blocks.pop() || ''; blocks.forEach(consumeEvent); }
       setLoop(result.loop ?? loop); setStarted(true); setDone(Boolean(result.done));
+      if (result.done && onCompleteRecall) {
+        onCompleteRecall(selectedLessonId);
+      }
       setStatus(result.done ? 'Agent đã hoàn tất đánh giá retention.' : result.thinking_summary || 'Agent đã chọn câu hỏi tiếp theo.');
       setGuardrail(result.guardrail || null);
     } catch (error) { setStatus(`Lỗi kết nối agent: ${error.message}`); }
@@ -713,7 +716,33 @@ function RecallPartner({ lecture, setActiveTopic, panelMode, setPanelMode, panel
       </div>
     </div>
     {!started && <div className="agent-setup"><div className="agent-intro"><span>1 · Chọn bài</span><span>2 · Tự giải thích</span><span>3 · Nhận đánh giá</span></div><strong>Hôm nay thầy/cô muốn Minh hỏi về bài nào?</strong><p>Minh sẽ đọc từng đoạn nhỏ, hỏi một ý tại một thời điểm và chỉ chuyển tiếp khi phần hiện tại đã đủ chắc.</p><div className="lesson-mcq">{lectures.map(item => <button key={item.id} className={selectedLessonId === item.id ? 'selected' : ''} onClick={() => resetSession(item.id)}>{item.id.replace('DAY ', 'Bài ')}</button>)}</div><label className="loop-choice">Số lượt đối thoại <select value={nLoop} onChange={event => setNLoop(Number(event.target.value))}><option value="3">3 lượt</option><option value="5">5 lượt</option><option value="7">7 lượt</option></select></label><button className="send-button" onClick={start} disabled={isTyping}>Bắt đầu phiên {selectedLessonId} →</button></div>}
-    {started && <div className="chat-messages">{messages.map(msg => <div key={msg.id} className={`chat-message-row ${msg.sender === 'user' ? 'user' : ''}`}>{msg.sender === 'ai' && <div className="chat-avatar" style={{ background: 'none', width: '32px', height: '32px' }}><MascotAvatar /></div>}<div className={`bubble ${msg.sender === 'user' ? 'user' : ''}`}>{msg.text}</div></div>)}{isTyping && <div className="chat-message-row"><div className="chat-avatar" style={{ background: 'none', width: '32px', height: '32px' }}><MascotAvatar /></div><div className="bubble typing-indicator"><span /><span /><span /></div></div>}<div ref={messagesEndRef} /></div>}
+    {started && (
+      <div className="chat-messages">
+        {messages.filter(msg => msg.text !== '').map(msg => (
+          <div key={msg.id} className={`chat-message-row ${msg.sender === 'user' ? 'user' : ''}`}>
+            {msg.sender === 'ai' && (
+              <div className="chat-avatar" style={{ background: 'none', width: '32px', height: '32px' }}>
+                <MascotAvatar />
+              </div>
+            )}
+            <div className={`bubble ${msg.sender === 'user' ? 'user' : ''}`}>
+              {msg.text}
+            </div>
+          </div>
+        ))}
+        {isTyping && (messages.length === 0 || messages[messages.length - 1].sender !== 'ai' || messages[messages.length - 1].text === '') && (
+          <div className="chat-message-row">
+            <div className="chat-avatar" style={{ background: 'none', width: '32px', height: '32px' }}>
+              <MascotAvatar />
+            </div>
+            <div className="bubble typing-indicator">
+              <span /><span /><span />
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+    )}
     {started && guardrail && <div className="guardrail-card" role="alert"><strong>Giữ đúng nhịp học</strong><p>{guardrail.message}</p><button onClick={() => { setGuardrail(null); inputRef.current?.focus(); }}>Trả lời lại câu hỏi ↑</button></div>}
     {started && !done && <><label className="answer-label">Trả lời đúng câu hỏi của Minh bằng cách giải thích và ví dụ</label><textarea ref={inputRef} className="answer" value={answer} onChange={event => { setAnswer(event.target.value); if (guardrail) setGuardrail(null); }} placeholder="Ví dụ: Khái niệm này hoạt động như… vì…" onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submit(); } }} /><button className="send-button" onClick={submit} disabled={!answer.trim() || isTyping}>Gửi để Minh đánh giá →</button></>}
     {started && answerQuality && <div className={`quality-chip quality-${answerQuality}`}><span>{answerQuality === 'good' ? '✓' : answerQuality === 'needs_clarification' ? '!' : '·'}</span>{answerQuality === 'good' ? 'Minh đánh giá: Đã hiểu tốt' : answerQuality === 'needs_clarification' ? 'Minh đánh giá: Cần giải thích thêm' : 'Minh chưa đủ căn cứ để đánh giá'}</div>}
@@ -722,7 +751,7 @@ function RecallPartner({ lecture, setActiveTopic, panelMode, setPanelMode, panel
   </aside>;
 }
 
-function LearningView({ activeTopic, setActiveTopic, graph, onNodeClick, recallEnabled, setRecallEnabled, viewport, setViewport, zoom, reset, resetTrigger, fitViewTrigger }) {
+function LearningView({ activeTopic, setActiveTopic, graph, onNodeClick, recallEnabled, setRecallEnabled, viewport, setViewport, zoom, reset, resetTrigger, fitViewTrigger, onCompleteRecall }) {
   const [panelMode, setPanelMode] = useState('compact');
   const [panelSize, setPanelSize] = useState({ width: 300, height: 533 });
   const dueLecture = lectures.find(lecture => lecture.learnedAt) || lectures[0];
@@ -754,6 +783,7 @@ function LearningView({ activeTopic, setActiveTopic, graph, onNodeClick, recallE
           setPanelMode={setPanelMode}
           panelSize={panelSize}
           setPanelSize={setPanelSize}
+          onCompleteRecall={onCompleteRecall}
         />
       </main>
     </div>
@@ -767,7 +797,7 @@ function LibraryView({ orderedLectures, moveLecture, selectedId, setSelectedId }
   return <main className="page-main" id="library"><div className="page-heading"><div><div className="eyebrow">LIBRARY / 05 BÀI GIẢNG</div><h1>Kho kiến thức<br /><em>đã nộp.</em></h1></div><p>Mỗi thanh là một bài giảng thật trong thư mục BÀI GIẢNG. Sắp xếp thứ tự học, mở ra để đọc nội dung và xem lịch ôn tự động.</p></div><div className="library-toolbar"><div className="library-count"><strong>{orderedLectures.length}</strong><span>bài giảng trong lộ trình</span></div><label className="search-box">⌕<input value={query} onChange={e => setQuery(e.target.value)} placeholder="Tìm bài giảng…" /></label></div><div className="library-layout"><section className="lecture-list">{visible.map((lecture, index) => <article className={`lecture-row ${selected?.id === lecture.id ? 'selected' : ''}`} key={lecture.id} onClick={() => setSelectedId(lecture.id)}><div className="lecture-index">{String(index + 1).padStart(2, '0')}</div><div className="lecture-main"><div className="lecture-meta"><span>{lecture.tag}</span><span>{lecture.duration}</span></div><h3>{lecture.title}</h3><p>{lecture.summary}</p><div className="lecture-status">{lecture.learnedAt ? <><i className="status-dot done" />Đã học · {formatDate(new Date(lecture.learnedAt))}</> : <><i className="status-dot next" />Sắp học theo lộ trình</>}</div></div><div className="row-controls"><button onClick={e => { e.stopPropagation(); moveLecture(index, -1); }} disabled={index === 0} aria-label="Đưa lên">↑</button><button onClick={e => { e.stopPropagation(); moveLecture(index, 1); }} disabled={index === visible.length - 1} aria-label="Đưa xuống">↓</button><span>↗</span></div></article>)}</section>{selected && <aside className="lecture-detail"><div className="detail-kicker">{selected.id} / BÀI GIẢNG</div><h2>{selected.title}</h2><div className="detail-info"><span>{selected.day}</span><span>{selected.duration}</span><span>{selected.tag}</span></div><div className="detail-rule" /><p className="detail-summary">{selected.summary}</p><div className="text-label">NỘI DUNG BÀI GIẢNG</div><p className="lecture-text">{selected.content}</p><div className="source-file">⌁ {selected.file}<span>đã đọc từ data pack</span></div></aside>}</div><div className="library-tip"><span>✦</span><div><strong>Gợi ý học thông minh</strong><p>Đọc lướt nội dung trước, sau đó đóng tài liệu và để Minh hỏi lại. Việc tự gọi lại giúp biến “đã xem” thành “đã nhớ”.</p></div></div></main>;
 }
 
-function ReviewView({ orderedLectures, onStartRecall }) {
+function ReviewView({ orderedLectures, onStartRecall, completedReviews = [] }) {
   const [reminder, setReminder] = useState(true);
   const [now, setNow] = useState(new Date());
 
@@ -793,7 +823,9 @@ function ReviewView({ orderedLectures, onStartRecall }) {
   const schedule = orderedLectures.flatMap((lecture, index) => spacing.map((gap, reviewIndex) => ({ lecture, reviewIndex, date: addDays(new Date(lecture.learnedAt || addDays(base, index)), gap) }))).sort((a, b) => a.date - b.date);
   const today = new Date('2026-07-30T12:00:00');
   const due = schedule.filter(item => item.date <= today).slice(0, 3);
-  return <main className="page-main" id="review"><div className="page-heading"><div><div className="eyebrow">REVIEW ENGINE / SPACED RECALL</div><h1>Lịch ôn<br /><em>tự chạy.</em></h1></div><p>Lịch lấy đúng 5 bài trong Thư viện và ngày học thực tế. Mỗi bài quay lại theo nhịp 1 · 3 · 7 · 14 · 30 ngày để Minh chủ động hỏi bạn.</p></div><section className="review-overview"><div className="next-review"><div className="eyebrow" style={{ fontVariantNumeric: 'tabular-nums' }}>{formatRealtimeDate(now)}</div><h2>{due.length ? `${due.length} lượt recall đang chờ` : 'Bạn đã hoàn thành lịch hôm nay'}</h2><p>{due.length ? `Minh sẽ bắt đầu bằng bài “${due[0].lecture.title}”.` : 'Lịch mới sẽ tự xuất hiện sau bài học tiếp theo.'}</p><button className="button primary" onClick={() => setReminder(value => !value)}>{reminder ? '✓ AI đang nhắc lúc 19:30' : 'Bật AI chủ động nhắc'}</button></div><div className="method-card"><span className="method-icon">↗</span><div><strong>Nhịp giãn cách mặc định</strong><p>Ngày học → +1 → +3 → +7 → +14 → +30 ngày</p><small>Dùng các lần active recall ở khoảng cách tăng dần; nếu trả lời sai, có thể đưa bài về phiên gần hơn.</small></div></div></section><div className="review-section-head"><div><div className="eyebrow">YOUR TIMELINE</div><h2>Dòng thời gian ghi nhớ</h2></div><span>{schedule.length} phiên đã lên lịch</span></div><section className="timeline">{schedule.slice(0, 14).map((item, index) => <article className={`timeline-item ${item.date <= today ? 'due' : ''}`} key={`${item.lecture.id}-${item.reviewIndex}`}><div className="timeline-date"><strong>{formatDate(item.date)}</strong><span>{item.date <= today ? 'CẦN ÔN' : `LẦN ${item.reviewIndex + 1}`}</span></div><div className="timeline-connector"><i /></div><div className="timeline-content"><span>{item.lecture.id} · {item.lecture.tag}</span><h3>{item.lecture.title}</h3><p>{item.reviewIndex === 0 ? 'Recall nhanh: nói lại ý chính trong 60 giây.' : item.reviewIndex === 1 ? 'Giải thích lại bằng ví dụ của chính bạn.' : 'Kết nối bài này với một bài đã học trước.'}</p></div><button className="ask-button" onClick={() => onStartRecall && onStartRecall(item.lecture)}>Minh hỏi →</button></article>)}</section><div className="science-note">Lịch này là prototype dựa trên nguyên tắc học ngắt quãng, không phải khuyến nghị y khoa hay bảo đảm cho mọi người học. <a href="https://www.learningscientists.org/blog/2018/7/5-1" target="_blank" rel="noreferrer">Đọc cơ sở thiết kế ↗</a></div></main>;
+  return <main className="page-main" id="review"><div className="page-heading"><div><div className="eyebrow">REVIEW ENGINE / SPACED RECALL</div><h1>Lịch ôn<br /><em>tự chạy.</em></h1></div><p>Lịch lấy đúng 5 bài trong Thư viện và ngày học thực tế. Mỗi bài quay lại theo nhịp 1 · 3 · 7 · 14 · 30 ngày để Minh chủ động hỏi bạn.</p></div><section className="review-overview"><div className="next-review"><div className="eyebrow" style={{ fontVariantNumeric: 'tabular-nums' }}>{formatRealtimeDate(now)}</div><h2>{due.length ? `${due.length} lượt recall đang chờ` : 'Bạn đã hoàn thành lịch hôm nay'}</h2><p>{due.length ? `Minh sẽ bắt đầu bằng bài “${due[0].lecture.title}”.` : 'Lịch mới sẽ tự xuất hiện sau bài học tiếp theo.'}</p><button className="button primary" onClick={() => setReminder(value => !value)}>{reminder ? '✓ AI đang nhắc lúc 19:30' : 'Bật AI chủ động nhắc'}</button></div><div className="method-card"><span className="method-icon">↗</span><div><strong>Nhịp giãn cách mặc định</strong><p>Ngày học → +1 → +3 → +7 → +14 → +30 ngày</p><small>Dùng các lần active recall ở khoảng cách tăng dần; nếu trả lời sai, có thể đưa bài về phiên gần hơn.</small></div></div></section><div className="review-section-head"><div><div className="eyebrow">YOUR TIMELINE</div><h2>Dòng thời gian ghi nhớ</h2></div><span>{schedule.length} phiên đã lên lịch</span></div><section className="timeline">{schedule.slice(0, 14).map((item, index) => {
+  const isCompleted = completedReviews.includes(item.lecture.id) || item.date <= new Date('2026-07-30T23:59:59');
+  return <article className={`timeline-item ${item.date <= today && !isCompleted ? 'due' : ''} ${isCompleted ? 'completed' : ''}`} key={`${item.lecture.id}-${item.reviewIndex}`}><div className="timeline-date"><strong>{formatDate(item.date)}</strong><span>{isCompleted ? 'ĐÃ ÔN TẬP' : (item.date <= today ? 'CẦN ÔN TẬP' : `LẦN ${item.reviewIndex + 1}`)}</span></div><div className="timeline-connector"><i /></div><div className="timeline-content"><span>{item.lecture.id} · {item.lecture.tag}</span><h3>{item.lecture.title}</h3><p>{item.reviewIndex === 0 ? 'Recall nhanh: nói lại ý chính trong 60 giây.' : item.reviewIndex === 1 ? 'Giải thích lại bằng ví dụ của chính bạn.' : 'Kết nối bài này với một bài đã học trước.'}</p></div><button className={`ask-button ${isCompleted ? 'completed' : ''}`} onClick={() => !isCompleted && onStartRecall && onStartRecall(item.lecture)} disabled={isCompleted}>{isCompleted ? 'Đã ôn tập ✓' : 'Minh hỏi →'}</button></article>})}</section><div className="science-note">Lịch này là prototype dựa trên nguyên tắc học ngắt quãng, không phải khuyến nghị y khoa hay bảo đảm cho mọi người học. <a href="https://www.learningscientists.org/blog/2018/7/5-1" target="_blank" rel="noreferrer">Đọc cơ sở thiết kế ↗</a></div></main>;
 }
 
 function App() {
@@ -804,6 +836,25 @@ function App() {
   const [orderedLectures, setOrderedLectures] = useState(lectures);
   const [selectedLectureId, setSelectedLectureId] = useState(lectures[0].id);
   const [recallEnabled, setRecallEnabled] = useState(true);
+  const [completedReviews, setCompletedReviews] = useState(() => {
+    try {
+      const saved = localStorage.getItem('completedReviews');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const handleCompleteRecall = (lessonId) => {
+    setCompletedReviews(prev => {
+      if (prev.includes(lessonId)) return prev;
+      const next = [...prev, lessonId];
+      try {
+        localStorage.setItem('completedReviews', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+  };
 
   // Lifted viewport state and zoom helpers for global dashboard controls
   const [viewport, setViewport] = useState({ x: 18, y: 93, scale: 0.5 });
@@ -893,7 +944,7 @@ function App() {
   const page = view === 'library'
     ? <LibraryView orderedLectures={orderedLectures} moveLecture={moveLecture} selectedId={selectedLectureId} setSelectedId={setSelectedLectureId} />
     : view === 'review'
-      ? <ReviewView orderedLectures={orderedLectures} onStartRecall={handleStartRecall} />
+      ? <ReviewView orderedLectures={orderedLectures} onStartRecall={handleStartRecall} completedReviews={completedReviews} />
       : <LearningView
         activeTopic={activeTopic}
         setActiveTopic={setActiveTopic}
@@ -907,6 +958,7 @@ function App() {
         reset={reset}
         resetTrigger={resetTrigger}
         fitViewTrigger={fitViewTrigger}
+        onCompleteRecall={handleCompleteRecall}
       />;
 
   return (

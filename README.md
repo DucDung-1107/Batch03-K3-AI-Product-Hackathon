@@ -4,7 +4,7 @@
 * **Nguyễn Đức Dũng - 2A202601823:** Code Backend, Xây dựng API
 * **Lăng Thị Phương Huế - 2A202601915:** Code Frontend
 * **Nguyễn Hải Quân - 2A202601863:** Research, Chuẩn bị tài liệu & Dữ liệu bài học
-* **Đặng Đức Hoà - 2A202601823:** QA/Kiểm thử, Viết tài liệu (Spec.md, README) & Dữ liệu bài học
+* **Đặng Đức Hoà - 2A202601823:** QA/Kiểm thử, Viết tài liệu & Dữ liệu bài học
 
 
 
