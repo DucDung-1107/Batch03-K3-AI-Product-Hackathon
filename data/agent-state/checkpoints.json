@@ -375,5 +375,15 @@
     "completed_topics": [
       "current chunk"
     ]
+  },
+  "manual-1785433108394-hlwxpo": {
+    "lesson_id": "DAY 1",
+    "cursor": 3600,
+    "next_cursor": 5400,
+    "chunk": "nt Capabilities): Các năng lực suy luận phức tạp chỉ bắt đầu xuất hiện khi mô hình được mở rộng quy mô (Scale) về số lượng tham số, kích thước tập dữ liệu và năng lực tính toán.\nCơ chế Core: Self-Attention và Quy trình xử lý của Transformer\nSơ đồ luồng xử lý thông tin vật lý của một khối Transformer:\nInput Tokens ⟶ Embedding + Position Embedding ⟶ Self-Attention Layer (×N) ⟶ Feed-Forward Network (×N) ⟶ Next Token Probability Output\nSelf-Attention là cơ chế toán học cho phép mô hình gán trọng số liên kết giữa các phần khác nhau của chuỗi đầu vào khi xử lý một token cụ thể. Ví dụ, trong câu 'Con mèo ngồi trên bàn. Nó rất đáng yêu', khi xử lý từ 'Nó', cơ chế Attention sẽ gán trọng số cao nhất cho thực thể 'mèo' thay vì 'bàn', giúp mô hình duy trì ngữ cảnh chuẩn xác.\nCông thức tính toán Attention (Scaled Dot-Product Attention):Attention(Q, K, V) = softmax( (Q * Kᵀ) / √d_k ) * V\nTrong đó: Q (Query) là vectơ truy vấn; K (Key) là vectơ khóa; V (Value) là vectơ giá trị; d_k đại diện cho số chiều của không gian vectơ khóa nhằm chuẩn hóa dữ liệu đầu vào.\nKhái niệm về Token và Ngôn ngữ học trong LLM\nToken là đơn vị xử lý ngôn ngữ cơ bản nhất của LLM. Quy trình Tokenization chia nhỏ văn bản thành các phân đoạn subword. Trung bình, 1 token tương đương khoảng 0.75 từ tiếng Anh, nhưng chỉ tương đương khoảng 0.5 từ đối với tiếng Việt. Tiếng Việt tốn nhiều token hơn do đặc thù sử dụng dấu thanh và hệ thống mã hóa ký tự Unicode đa ký tự. Điều này khiến cho chi phí API call của tiếng Việt tăng gấp 1.5 - 2 lần so với cùng một độ dài thông tin bằng tiếng Anh.\nBa Giai đoạn Huấn luyện Mô hình LLM hoàn chỉnh\n1. Pre-training (Huấn luyện sơ khởi): Mô hình đọc và phân tích một lượng lớn văn bản thô từ internet nhằm xây dựng vốn ngôn ngữ, kiến thức tổng quát và khả năng liên kết ngữ cảnh.\n2. Super",
+    "completed_topics": [
+      "Machine Learning vs Deep Learning",
+      "Decoder-only Transformer"
+    ]
   }
 }
