@@ -4,6 +4,7 @@ import './styles.css';
 import './styles-extra.css';
 import './styles-content.css';
 import './styles-graph.css';
+import './styles-layout.css';
 import day1Text from '../data/vlearn-pack/BÀI GIẢNG/DAY1.md?raw';
 import day2Text from '../data/vlearn-pack/BÀI GIẢNG/DAY2.md?raw';
 import day3Text from '../data/vlearn-pack/BÀI GIẢNG/DAY3.md?raw';
@@ -20,14 +21,133 @@ const lectures = [
 
 const topics = lectures.map((lecture, index) => ({ id: lecture.id, tag: `${String(index + 1).padStart(2, '0')} / ${lecture.tag}`, title: lecture.title, description: lecture.summary, node: lecture.node }));
 const spacing = [1, 3, 7, 14, 30];
-const GRAPH_API_ORIGIN = typeof window === 'undefined' ? 'http://127.0.0.1:8787' : `${window.location.protocol}//${window.location.hostname}:8787`;
-const AGENT_ORIGIN = typeof window === 'undefined' ? 'http://127.0.0.1:8000' : `${window.location.protocol}//${window.location.hostname}:8000`;
+const GRAPH_API_ORIGIN = typeof window === 'undefined' ? 'http://127.0.0.1:8000' : `${window.location.protocol}//${window.location.hostname}:8000`;
+const AGENT_ORIGIN = GRAPH_API_ORIGIN;
 const API_ORIGIN = AGENT_ORIGIN;
 const formatDate = date => new Intl.DateTimeFormat('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' }).format(date);
 const addDays = (date, days) => { const next = new Date(date); next.setDate(next.getDate() + days); return next; };
 
-function Header({ view, setView }) {
-  return <header className="topbar"><button className="brand" onClick={() => setView('learning')}>Veu<span>Ron</span></button><nav><button className={view === 'learning' ? 'active' : ''} onClick={() => setView('learning')}>Học tập</button><button className={view === 'review' ? 'active' : ''} onClick={() => setView('review')}>Lịch ôn</button><button className={view === 'library' ? 'active' : ''} onClick={() => setView('library')}>Thư viện</button></nav><button className="avatar" aria-label="Hồ sơ">✦</button></header>;
+const MascotAvatar = () => (
+  <svg width="100%" height="100%" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="18" cy="18" r="18" fill="#edf7e7" />
+    <circle cx="18" cy="20" r="11" fill="#79ad7c" />
+    <circle cx="12" cy="21" r="2" fill="#a4db8b" />
+    <circle cx="24" cy="21" r="2" fill="#a4db8b" />
+    <circle cx="14" cy="18" r="1.5" fill="#ffffff" />
+    <circle cx="22" cy="18" r="1.5" fill="#ffffff" />
+    <path d="M16 22C16.5 23 19.5 23 20 22" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M11 12.5L18 9.5L25 12.5L18 15.5L11 12.5Z" fill="#115631" />
+    <path d="M18 14V17" stroke="#115631" strokeWidth="1.5" />
+    <path d="M25 12.5V15" stroke="#115631" strokeWidth="1.5" />
+    <circle cx="25" cy="15" r="1" fill="#115631" />
+  </svg>
+);
+
+function Sidebar({ view, setView, onMouseEnterHocTap, onMouseLeaveHocTap }) {
+  return (
+    <aside className="app-sidebar">
+      <button className="sidebar-brand" onClick={() => setView('learning')}>
+        <span className="avatar" style={{ display: 'grid', placeItems: 'center', pointerEvents: 'none', width: '32px', height: '32px', fontSize: '15px' }}>✦</span>Veu<span>Ron</span>
+      </button>
+      <nav className="sidebar-nav">
+        <button 
+          className={view === 'learning' ? 'active' : ''} 
+          onClick={() => setView('learning')}
+          onMouseEnter={onMouseEnterHocTap}
+          onMouseLeave={onMouseLeaveHocTap}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
+          <span>Học tập</span>
+        </button>
+        <button className={view === 'review' ? 'active' : ''} onClick={() => setView('review')}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+          <span>Lịch ôn</span>
+        </button>
+        <button className={view === 'library' ? 'active' : ''} onClick={() => setView('library')}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
+          <span>Thư viện</span>
+        </button>
+      </nav>
+      <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid var(--line)', opacity: 0.6, fontSize: '10px', fontFamily: 'DM Mono, monospace', color: 'var(--muted)' }}>
+        <div>VEURON OS v1.2.0</div>
+        <div style={{ marginTop: '3px' }}>Active Workspace</div>
+      </div>
+    </aside>
+  );
+}
+
+function Dashboard({ view, graph, recallEnabled, setRecallEnabled, viewport, zoom, reset, orderedLectures, fitView }) {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatRealtimeDate = (date) => {
+    const weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    const weekday = weekdays[date.getDay()];
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `HÔM NAY · ${weekday.toUpperCase()}, ${day}/${month} ${hours}:${minutes}:${seconds}`;
+  };
+
+  const nodesCount = graph?.nodes?.length || 0;
+  const totalNodesCount = graph?.totalNodes || nodesCount;
+
+  return (
+    <header className="dashboard-bar">
+      <div className="dashboard-left">
+        {view === 'learning' && (
+          <div className="dashboard-tools">
+            {/* Nhóm Thông tin */}
+            <div className="tool-group info-group">
+              <span className="info-text">{nodesCount} / {totalNodesCount} node hiện</span>
+            </div>
+
+            {/* Nhóm Filter/Toggle */}
+            <div className="tool-group toggle-group">
+              <span className="toggle-label">Trả lời câu hỏi:</span>
+              <button 
+                className={`switch ${recallEnabled ? 'on' : 'off'}`} 
+                onClick={() => setRecallEnabled(!recallEnabled)}
+                aria-label="Bật tắt yêu cầu trả lời trước khi mở nhánh mới"
+              >
+                <span className="slider" />
+              </button>
+              <span className={`switch-status ${recallEnabled ? 'on' : 'off'}`}>{recallEnabled ? 'CÓ' : 'KHÔNG'}</span>
+            </div>
+
+            {/* Nhóm Zoom & Định vị */}
+            <div className="tool-group zoom-group">
+              <button className="tool-btn" onClick={() => zoom(-0.1)} title="Thu nhỏ" aria-label="Thu nhỏ">−</button>
+              <span className="zoom-text">{Math.round((viewport?.scale || 1) * 100)}%</span>
+              <button className="tool-btn" onClick={() => zoom(0.1)} title="Phóng to" aria-label="Phóng to">+</button>
+              <div className="tool-divider" />
+              <button className="tool-btn fit-view-btn" onClick={fitView} title="Căn giữa & thu vừa màn hình" aria-label="Căn chỉnh vừa màn hình" style={{ fontSize: '11px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>[ ]</button>
+              <button className="tool-btn reset-btn" onClick={reset} title="Khôi phục vị trí mặc định" aria-label="Đặt lại graph">↺</button>
+            </div>
+          </div>
+        )}
+        {view === 'review' && (
+          <div className="dashboard-stats-row">
+            <span className="stat-badge">3 lượt recall đang chờ ôn tập</span>
+          </div>
+        )}
+        {view === 'library' && (
+          <div className="dashboard-stats-row">
+            <span className="stat-badge">{orderedLectures.length} bài giảng trong lộ trình</span>
+          </div>
+        )}
+      </div>
+      <div className="dashboard-right" style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {formatRealtimeDate(now)}
+      </div>
+    </header>
+  );
 }
 
 function TopicCard({ topic, selected, onSelect }) {
@@ -79,51 +199,81 @@ const computeHorizontalLayout = (nodes, rootId) => {
     }
   });
 
-  const nodeYMap = {};
-  let nextLeafY = 0;
-  const spacingY = 160;
-  const spacingX = 320;
-  const startX = 60;
-
-  const layoutNode = (node) => {
-    const children = childrenMap[node.id] || [];
-    if (children.length === 0) {
-      nodeYMap[node.id] = nextLeafY * spacingY;
-      nextLeafY++;
-    } else {
-      children.forEach(child => layoutNode(child));
-      const firstY = nodeYMap[children[0].id];
-      const lastY = nodeYMap[children[children.length - 1].id];
-      nodeYMap[node.id] = (firstY + lastY) / 2;
-    }
+  const nodeHeight = (node) => {
+    return node.depth === 0 ? 180 : 150;
   };
 
-  layoutNode(rootNode);
+  const gap = 24; // Vertical spacing gap between siblings
 
+  // First pass: compute subtree heights bottom-up
+  const subtreeHeights = {};
+  const computeHeight = (node) => {
+    const children = childrenMap[node.id] || [];
+    const selfHeight = nodeHeight(node);
+    if (children.length === 0) {
+      subtreeHeights[node.id] = selfHeight;
+    } else {
+      children.forEach(child => computeHeight(child));
+      const childrenSum = children.reduce((sum, child) => sum + (subtreeHeights[child.id] || 88), 0);
+      const childrenGaps = (children.length - 1) * gap;
+      subtreeHeights[node.id] = Math.max(selfHeight, childrenSum + childrenGaps);
+    }
+  };
+  computeHeight(rootNode);
+
+  // Fallback heights for disconnected nodes
   nodes.forEach(node => {
-    if (nodeYMap[node.id] === undefined) {
-      nodeYMap[node.id] = nextLeafY * spacingY;
-      nextLeafY++;
+    if (subtreeHeights[node.id] === undefined) {
+      subtreeHeights[node.id] = nodeHeight(node);
     }
   });
 
-  const rootY = nodeYMap[rootNode.id] || 0;
-  const offsetY = 250 - rootY;
+  const nodeYMap = {};
+  const layoutNode = (node, startY) => {
+    const children = childrenMap[node.id] || [];
+    const selfHeight = nodeHeight(node);
+    
+    if (children.length === 0) {
+      nodeYMap[node.id] = startY + (subtreeHeights[node.id] - selfHeight) / 2;
+    } else {
+      let currentY = startY;
+      children.forEach(child => {
+        layoutNode(child, currentY);
+        currentY += subtreeHeights[child.id] + gap;
+      });
+      const firstChildY = nodeYMap[children[0].id];
+      const lastChildY = nodeYMap[children[children.length - 1].id];
+      nodeYMap[node.id] = (firstChildY + lastChildY) / 2;
+    }
+  };
+  layoutNode(rootNode, 0);
 
+  // Layout disconnected nodes
+  let nextDisconnectedY = (subtreeHeights[rootNode.id] || 0) + gap;
+  nodes.forEach(node => {
+    if (nodeYMap[node.id] === undefined) {
+      nodeYMap[node.id] = nextDisconnectedY;
+      nextDisconnectedY += nodeHeight(node) + gap;
+    }
+  });
+
+  const offsetY = 230 - (nodeYMap[rootNode.id] || 0);
+
+  const spacingX = 380;
+  const startX = 60;
   const positions = {};
   nodes.forEach(node => {
     positions[node.id] = {
       x: startX + node.depth * spacingX,
       y: nodeYMap[node.id] + offsetY,
-      width: node.width || (node.depth === 0 ? 250 : 225),
-      height: node.height || (node.depth === 0 ? 112 : 88)
+      width: node.depth === 0 ? 280 : 225,
+      height: nodeHeight(node)
     };
   });
   return positions;
 };
 
-function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled }) {
-  const [viewport, setViewport] = useState({ x: 0, y: 0, scale: 1 });
+function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled, viewport, setViewport, zoom, reset, resetTrigger, fitViewTrigger, panelMode, panelSize }) {
   const drag = useRef(null);
   const canvasRef = useRef(null);
   const nodes = graph?.nodes || [];
@@ -131,6 +281,105 @@ function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled })
   const nodeMap = Object.fromEntries(nodes.map(node => [node.id, node]));
   const [localPositions, setLocalPositions] = useState({});
   const suppressClick = useRef(false);
+
+  const nodesRef = useRef(nodes);
+  const graphRef = useRef(graph);
+  const localPositionsRef = useRef(localPositions);
+  const panelModeRef = useRef(panelMode);
+  const panelSizeRef = useRef(panelSize);
+
+  useEffect(() => {
+    nodesRef.current = nodes;
+    graphRef.current = graph;
+    localPositionsRef.current = localPositions;
+    panelModeRef.current = panelMode;
+    panelSizeRef.current = panelSize;
+  }, [nodes, graph, localPositions, panelMode, panelSize]);
+
+  // Reset all dragged offsets back to default computed layout when reset is clicked
+  useEffect(() => {
+    setLocalPositions({});
+  }, [resetTrigger]);
+
+  const autoFit = (forcedScale) => {
+    const canvas = canvasRef.current;
+    if (!canvas || nodesRef.current.length === 0) return;
+
+    const canvasWidth = canvas.clientWidth;
+    const canvasHeight = canvas.clientHeight;
+    if (canvasWidth < 100 || canvasHeight < 100) return;
+
+    const computed = computeHorizontalLayout(nodesRef.current, graphRef.current?.rootId);
+
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+
+    nodesRef.current.forEach(node => {
+      const pos = (localPositionsRef.current[node.id] && localPositionsRef.current[node.id].dragged)
+        ? localPositionsRef.current[node.id]
+        : computed[node.id] || { x: node.x, y: node.y, width: node.width || 225, height: node.height || 150 };
+      const w = pos.width || 225;
+      const h = pos.height || 150;
+
+      if (pos.x < minX) minX = pos.x;
+      if (pos.x + w > maxX) maxX = pos.x + w;
+      if (pos.y < minY) minY = pos.y;
+      if (pos.y + h > maxY) maxY = pos.y + h;
+    });
+
+    if (minX === Infinity) return;
+
+    const graphWidth = maxX - minX;
+    const graphHeight = maxY - minY;
+
+    const paddingLeft = 60;
+    const paddingRight = panelModeRef.current !== 'minimized' ? panelSizeRef.current.width + 50 : 60;
+    const paddingTop = 60;
+    const paddingBottom = 60;
+
+    const scaleX = (canvasWidth - paddingLeft - paddingRight) / graphWidth;
+    const scaleY = (canvasHeight - paddingTop - paddingBottom) / graphHeight;
+    
+    let fitScale = (forcedScale !== null && forcedScale !== undefined)
+      ? forcedScale
+      : Math.min(scaleX, scaleY);
+
+    // Clamp fitScale strictly between 0.5 (50%) and 1.5 (150%)
+    fitScale = Math.max(0.5, Math.min(1.5, fitScale));
+
+    // Left-aligned X viewport (so Core Node is at far left), vertically centered Y viewport
+    const viewportX = paddingLeft - minX * fitScale;
+    const viewportY = (canvasHeight - graphHeight * fitScale) / 2 - minY * fitScale - 70;
+
+    setViewport({ x: viewportX, y: viewportY, scale: fitScale });
+  };
+
+  const lastRootIdRef = useRef(null);
+
+  // Run autoFit on load and when fitViewTrigger changes (with requestAnimationFrame to ensure correct client measurements)
+  useEffect(() => {
+    const handle = requestAnimationFrame(() => {
+      const isNewGraph = graph?.rootId !== lastRootIdRef.current;
+      lastRootIdRef.current = graph?.rootId;
+      const forceScale = isNewGraph ? 0.5 : null;
+      autoFit(forceScale);
+    });
+    return () => cancelAnimationFrame(handle);
+  }, [graph?.rootId, fitViewTrigger]);
+
+  // Run autoFit on resize
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const observer = new ResizeObserver(() => {
+      requestAnimationFrame(() => {
+        autoFit();
+      });
+    });
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     const computed = computeHorizontalLayout(nodes, graph?.rootId);
     setLocalPositions(current => {
@@ -143,9 +392,6 @@ function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled })
       return updated;
     });
   }, [graph, nodes]);
-  const clamp = value => Math.min(1.55, Math.max(.65, value));
-  const zoom = amount => setViewport(current => ({ ...current, scale: clamp(current.scale + amount) }));
-  const reset = () => setViewport({ x: 0, y: 0, scale: 1 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -153,7 +399,7 @@ function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled })
     const handleWheel = event => {
       event.preventDefault();
       if (event.ctrlKey) {
-        // Pinch-to-zoom gesture on macOS trackpad
+        // Pinch-to-zoom gesture on macOS trackpad / Ctrl + Wheel
         zoom(-event.deltaY * 0.015);
       } else {
         // Two-finger swipe/scroll to pan the canvas
@@ -166,11 +412,34 @@ function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled })
     };
     canvas.addEventListener('wheel', handleWheel, { passive: false });
     return () => canvas.removeEventListener('wheel', handleWheel);
-  }, []);
+  }, [setViewport, zoom]);
 
-  const onPointerDown = event => { if (event.target.closest('.graph-node, .graph-controls')) return; event.currentTarget.setPointerCapture(event.pointerId); drag.current = { type: 'canvas', pointerX: event.clientX, pointerY: event.clientY, x: viewport.x, y: viewport.y }; };
+  const onPointerDown = event => {
+    if (event.target.closest('.graph-node, .graph-controls, .tool-group')) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    drag.current = { type: 'canvas', pointerX: event.clientX, pointerY: event.clientY, x: viewport.x, y: viewport.y };
+  };
   const onNodePointerDown = (event, node) => { event.stopPropagation(); event.currentTarget.setPointerCapture(event.pointerId); const position = localPositions[node.id] || node; drag.current = { type: 'node', nodeId: node.id, pointerX: event.clientX, pointerY: event.clientY, x: position.x, y: position.y, moved: false }; };
-  const onPointerMove = event => { if (!drag.current) return; const current = drag.current; const dx = event.clientX - current.pointerX; const dy = event.clientY - current.pointerY; if (current.type === 'node') { if (Math.abs(dx) + Math.abs(dy) > 4) current.moved = true; setLocalPositions(positions => ({ ...positions, [current.nodeId]: { ...positions[current.nodeId], x: current.x + dx / viewport.scale, y: current.y + dy / viewport.scale, dragged: true } })); } else setViewport(view => ({ ...view, x: current.x + dx, y: current.y + dy })); };
+  const onPointerMove = event => {
+    if (!drag.current) return;
+    const current = drag.current;
+    const dx = event.clientX - current.pointerX;
+    const dy = event.clientY - current.pointerY;
+    if (current.type === 'node') {
+      if (Math.abs(dx) + Math.abs(dy) > 4) current.moved = true;
+      setLocalPositions(positions => ({
+        ...positions,
+        [current.nodeId]: {
+          ...positions[current.nodeId],
+          x: current.x + dx / viewport.scale,
+          y: current.y + dy / viewport.scale,
+          dragged: true
+        }
+      }));
+    } else {
+      setViewport(view => ({ ...view, x: current.x + dx, y: current.y + dy }));
+    }
+  };
   const stopDrag = () => { if (drag.current?.type === 'node' && drag.current.moved) suppressClick.current = true; drag.current = null; };
   const positionOf = node => localPositions[node.id] || node;
   const pathFor = (source, target) => {
@@ -187,7 +456,7 @@ function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled })
   const rootPos = rootNode ? positionOf(rootNode) : null;
   const orbX = rootPos ? rootPos.x + rootPos.width / 2 : 185;
   const orbY = rootPos ? rootPos.y + rootPos.height / 2 : 306;
-  return <div className="map-card map-card-full"><div className="map-header"><div><div className="eyebrow">{topic.id} / NEURAL MAP</div><h2>Kéo node, phóng to và tự mở rộng ý</h2></div><div className="map-header-right"><div className="progress">{nodes.length} / {graph?.totalNodes || nodes.length} node hiện</div><div className="recall-toggle-row"><span className="toggle-label">BẮT BUỘC RECALL</span><button className={`switch ${recallEnabled ? 'on' : 'off'}`} onClick={() => setRecallEnabled(!recallEnabled)} aria-label="Bật tắt yêu cầu trả lời trước khi mở nhánh mới"><span className="slider" /><span className="switch-text">{recallEnabled ? 'ON' : 'OFF'}</span></button></div><div className="graph-controls"><button onClick={() => zoom(-.12)} aria-label="Thu nhỏ">−</button><span>{Math.round(viewport.scale * 100)}%</span><button onClick={() => zoom(.12)} aria-label="Phóng to">+</button><button onClick={reset} aria-label="Đặt lại graph">↺</button></div></div></div><div ref={canvasRef} className="map-canvas graph-canvas graph-canvas-full" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag}><div className="graph-stage" style={{ transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.scale})` }}><svg className="graph-edges" viewBox="0 0 1100 620" aria-hidden="true">{edges.map(edge => { const source = nodeMap[edge.source]; const target = nodeMap[edge.target]; return source && target ? <path key={`${edge.source}-${edge.target}`} className="edge edge-live" d={pathFor(source, target)} /> : null; })}<circle className="edge-orb" cx={orbX} cy={orbY} r="5" /></svg>{nodes.map((node, index) => { const position = positionOf(node); const isLeaf = node.isLeaf ?? !node.hasChildren; return <button key={node.id} className={`graph-node ${node.id === graph.rootId ? 'core' : `branch branch-${index % 3 + 1}`} ${isLeaf ? 'leaf' : 'expandable'} ${drag.current?.nodeId === node.id ? 'dragging' : ''}`} style={{ left: position.x, top: position.y, width: position.width, minHeight: position.height }} onPointerDown={event => onNodePointerDown(event, node)} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } onNodeClick(node); }}><span className="node-eyebrow">{node.eyebrow}</span><span className="node-title">{node.label}</span><span className="node-caption">{node.caption}</span><span className="node-pulse" /></button>; })}</div><div className="graph-hint"><span>✥</span>Nhấn giữ node để kéo · kéo nền để pan · lăn chuột để zoom</div></div></div>;
+  return <div className="map-card map-card-full"><div className="map-header"><div><div className="eyebrow">{topic.id} / NEURAL MAP</div><h2>Kéo node, phóng to và tự mở rộng ý</h2></div><div className="map-header-right"><div className="progress">{nodes.length} / {graph?.totalNodes || nodes.length} node hiện</div><div className="recall-toggle-row"><span className="toggle-label">BẮT BUỘC RECALL</span><button className={`switch ${recallEnabled ? 'on' : 'off'}`} onClick={() => setRecallEnabled(!recallEnabled)} aria-label="Bật tắt yêu cầu trả lời trước khi mở nhánh mới"><span className="slider" /><span className="switch-text">{recallEnabled ? 'ON' : 'OFF'}</span></button></div><div className="graph-controls"><button onClick={() => zoom(-0.1)} aria-label="Thu nhỏ">−</button><span>{Math.round(viewport.scale * 100)}%</span><button onClick={() => zoom(0.1)} aria-label="Phóng to">+</button><button onClick={reset} aria-label="Đặt lại graph">↺</button></div></div></div><div ref={canvasRef} className="map-canvas graph-canvas graph-canvas-full" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag}><div className="graph-stage" style={{ transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.scale})` }}><svg className="graph-edges" viewBox="0 0 1100 620" aria-hidden="true">{edges.map(edge => { const source = nodeMap[edge.source]; const target = nodeMap[edge.target]; return source && target ? <path key={`${edge.source}-${edge.target}`} className="edge edge-live" d={pathFor(source, target)} /> : null; })}<circle className="edge-orb" cx={orbX} cy={orbY} r="5" /></svg>{nodes.map((node, index) => { const position = positionOf(node); const isLeaf = node.isLeaf ?? !node.hasChildren; return <button key={node.id} className={`graph-node ${node.id === graph.rootId ? 'core' : `branch branch-${index % 3 + 1}`} ${isLeaf ? 'leaf' : 'expandable'} ${drag.current?.nodeId === node.id ? 'dragging' : ''}`} style={{ left: position.x, top: position.y, width: position.width, minHeight: position.height, borderLeft: node.id === graph.rootId ? undefined : '4px solid ' + ['#4ade80', '#3b82f6', '#ec4899', '#f59e0b', '#a855f7', '#14b8a6'][index % 6] }} onPointerDown={event => onNodePointerDown(event, node)} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } onNodeClick(node); }}><span className="node-eyebrow">{node.eyebrow}</span><span className="node-title">{node.label}</span><span className="node-caption">{node.caption}</span><span className="node-pulse" /></button>; })}</div></div></div>;
 }
 
 function LegacyRecallPartner({ lecture }) {
@@ -288,7 +557,7 @@ function LegacyRecallPartner({ lecture }) {
   );
 }
 
-function RecallPartner({ lecture }) {
+function RecallPartner({ lecture, setActiveTopic, panelMode, setPanelMode, panelSize, setPanelSize }) {
   const [selectedLessonId, setSelectedLessonId] = useState(lecture?.id || 'DAY 1');
   const [messages, setMessages] = useState([]);
   const [answer, setAnswer] = useState('');
@@ -300,8 +569,6 @@ function RecallPartner({ lecture }) {
   const [status, setStatus] = useState('Chọn bài giảng, rồi bắt đầu phiên Feynman chủ động.');
   const [guardrail, setGuardrail] = useState(null);
   const [answerQuality, setAnswerQuality] = useState(null);
-  const [panelMode, setPanelMode] = useState('compact');
-  const [panelSize, setPanelSize] = useState({ width: 300, height: 533 });
   const resizeRef = useRef(null);
   const sessionId = useRef(`manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
   const messagesEndRef = useRef(null);
@@ -312,7 +579,19 @@ function RecallPartner({ lecture }) {
     sessionId.current = `manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     setSelectedLessonId(lessonId); setMessages([]); setAnswer(''); setLoop(0); setStarted(false); setDone(false); setGuardrail(null); setAnswerQuality(null);
     setStatus('Sẵn sàng bắt đầu phiên học chủ động.');
+    const matchingTopic = topics.find(t => t.id === lessonId);
+    if (matchingTopic && setActiveTopic) {
+      setActiveTopic(matchingTopic);
+    }
   };
+
+  useEffect(() => {
+    if (lecture?.id && lecture.id !== selectedLessonId) {
+      sessionId.current = `manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      setSelectedLessonId(lecture.id); setMessages([]); setAnswer(''); setLoop(0); setStarted(false); setDone(false); setGuardrail(null); setAnswerQuality(null);
+      setStatus('Sẵn sàng bắt đầu phiên học chủ động.');
+    }
+  }, [lecture?.id]);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, isTyping]);
 
@@ -361,7 +640,7 @@ function RecallPartner({ lecture }) {
     callAgent('SCHEDULED', text);
   };
 
-  if (panelMode === 'minimized') return <button className="student-card-minimized" onClick={() => setPanelMode('compact')}><div className="bot-face">◕‿◕</div><div className="minimized-text"><strong>Minh · Học sinh AI</strong><span>{started ? `Đang học ${selectedLessonId}` : 'Sẵn sàng bắt đầu'}</span></div><span className="expand-icon">↗</span></button>;
+  if (panelMode === 'minimized') return <button className="student-card-minimized" onClick={() => setPanelMode('compact')}><div className="bot-face" style={{ background: 'none', width: '32px', height: '32px' }}><MascotAvatar /></div><div className="minimized-text"><strong>Minh · Học sinh AI</strong><span>{started ? `Đang học ${selectedLessonId}` : 'Sẵn sàng bắt đầu'}</span></div><span className="expand-icon">↗</span></button>;
   const startResize = event => {
     event.preventDefault();
     event.stopPropagation();
@@ -378,9 +657,40 @@ function RecallPartner({ lecture }) {
   return <aside className={`student-card agent-chat-card ${panelMode === 'expanded' ? 'panel-expanded' : ''}`} style={{ '--panel-width': `${panelSize.width}px`, '--panel-height': `${panelSize.height}px` }} onPointerMove={resizePanel} onPointerUp={stopResize} onPointerCancel={stopResize}>
     <div className="resize-handle" onPointerDown={startResize} aria-label="Kéo để đổi kích thước chatbot" title="Kéo để đổi kích thước" />
     <div className="student-top"><span className="eyebrow">FEYNMAN REACT AGENT</span><div className="agent-window-controls"><span className="student-badge">MANUAL SESSION</span><button onClick={() => setPanelMode(panelMode === 'expanded' ? 'compact' : 'expanded')} aria-label="Phóng to hoặc thu nhỏ chatbot">{panelMode === 'expanded' ? '↙' : '↗'}</button><button onClick={() => setPanelMode('minimized')} aria-label="Thu nhỏ chatbot">−</button></div></div>
-    <div className="bot"><div className="bot-face">◕‿◕</div><div><h3>Minh, học sinh của bạn</h3><p>{selectedLecture.title} · lượt {loop}/{nLoop}</p></div></div>
+    <div className="bot">
+      <div className="bot-face" style={{ background: 'none', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <MascotAvatar />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <h3>Minh, học sinh của bạn</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+          <p style={{ margin: 0, fontSize: '10px', color: 'var(--muted)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '70%' }}>
+            {selectedLecture.title} · {loop}/{nLoop}
+          </p>
+          {started && (
+            <button 
+              onClick={() => resetSession(selectedLessonId)} 
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--green)',
+                fontSize: '9px',
+                fontWeight: 'bold',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                padding: '2px 0',
+                outline: 'none'
+              }}
+              title="Nhấn để đổi bài học khác"
+            >
+              Đổi bài ↩
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
     {!started && <div className="agent-setup"><div className="agent-intro"><span>1 · Chọn bài</span><span>2 · Tự giải thích</span><span>3 · Nhận đánh giá</span></div><strong>Hôm nay thầy/cô muốn Minh hỏi về bài nào?</strong><p>Minh sẽ đọc từng đoạn nhỏ, hỏi một ý tại một thời điểm và chỉ chuyển tiếp khi phần hiện tại đã đủ chắc.</p><div className="lesson-mcq">{lectures.map(item => <button key={item.id} className={selectedLessonId === item.id ? 'selected' : ''} onClick={() => resetSession(item.id)}>{item.id.replace('DAY ', 'Bài ')}</button>)}</div><label className="loop-choice">Số lượt đối thoại <select value={nLoop} onChange={event => setNLoop(Number(event.target.value))}><option value="3">3 lượt</option><option value="5">5 lượt</option><option value="7">7 lượt</option></select></label><button className="send-button" onClick={start} disabled={isTyping}>Bắt đầu phiên {selectedLessonId} →</button></div>}
-    {started && <div className="chat-messages">{messages.map(msg => <div key={msg.id} className={`chat-message-row ${msg.sender === 'user' ? 'user' : ''}`}>{msg.sender === 'ai' && <div className="chat-avatar">◕‿◕</div>}<div className={`bubble ${msg.sender === 'user' ? 'user' : ''}`}>{msg.text}</div></div>)}{isTyping && <div className="chat-message-row"><div className="chat-avatar">◕‿◕</div><div className="bubble typing-indicator"><span /><span /><span /></div></div>}<div ref={messagesEndRef} /></div>}
+    {started && <div className="chat-messages">{messages.map(msg => <div key={msg.id} className={`chat-message-row ${msg.sender === 'user' ? 'user' : ''}`}>{msg.sender === 'ai' && <div className="chat-avatar" style={{ background: 'none', width: '32px', height: '32px' }}><MascotAvatar /></div>}<div className={`bubble ${msg.sender === 'user' ? 'user' : ''}`}>{msg.text}</div></div>)}{isTyping && <div className="chat-message-row"><div className="chat-avatar" style={{ background: 'none', width: '32px', height: '32px' }}><MascotAvatar /></div><div className="bubble typing-indicator"><span /><span /><span /></div></div>}<div ref={messagesEndRef} /></div>}
     {started && guardrail && <div className="guardrail-card" role="alert"><strong>Giữ đúng nhịp học</strong><p>{guardrail.message}</p><button onClick={() => { setGuardrail(null); inputRef.current?.focus(); }}>Trả lời lại câu hỏi ↑</button></div>}
     {started && !done && <><label className="answer-label">Trả lời đúng câu hỏi của Minh bằng cách giải thích và ví dụ</label><textarea ref={inputRef} className="answer" value={answer} onChange={event => { setAnswer(event.target.value); if (guardrail) setGuardrail(null); }} placeholder="Ví dụ: Khái niệm này hoạt động như… vì…" onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submit(); } }} /><button className="send-button" onClick={submit} disabled={!answer.trim() || isTyping}>Gửi để Minh đánh giá →</button></>}
     {started && answerQuality && <div className={`quality-chip quality-${answerQuality}`}><span>{answerQuality === 'good' ? '✓' : answerQuality === 'needs_clarification' ? '!' : '·'}</span>{answerQuality === 'good' ? 'Minh đánh giá: Đã hiểu tốt' : answerQuality === 'needs_clarification' ? 'Minh đánh giá: Cần giải thích thêm' : 'Minh chưa đủ căn cứ để đánh giá'}</div>}
@@ -389,11 +699,42 @@ function RecallPartner({ lecture }) {
   </aside>;
 }
 
-function LearningView({ activeTopic, setActiveTopic, graph, onNodeClick, recallEnabled, setRecallEnabled }) {
+function LearningView({ activeTopic, setActiveTopic, graph, onNodeClick, recallEnabled, setRecallEnabled, viewport, setViewport, zoom, reset, resetTrigger, fitViewTrigger }) {
+  const [panelMode, setPanelMode] = useState('compact');
+  const [panelSize, setPanelSize] = useState({ width: 300, height: 533 });
   const dueLecture = lectures.find(lecture => lecture.learnedAt) || lectures[0];
   const currentLecture = lectures.find(l => l.id === activeTopic?.id) || dueLecture;
   const displayTopic = activeTopic || { id: 'ALL LESSONS', tag: '00 / OVERVIEW', title: 'TẤT CẢ BÀI GIẢNG', description: 'Toàn bộ lộ trình 5 bài học', node: '5 bài giảng trong lộ trình' };
-  return <main id="learning"><section className="hero"><div><div className="eyebrow">LEARNING SPACE / 05</div><h1>Học sâu hơn.<br />Nhớ lâu hơn.</h1></div><div className="hero-copy"><p>Biến kiến thức phức tạp thành những nhánh tư duy nhỏ — rồi tự gọi lại chúng bằng đối thoại.</p><div className="day-progress">{Array.from({ length: 7 }, (_, i) => <span className={i < 3 ? 'active' : ''} key={i} />)}</div></div></section><section className="lesson-picker"><div><div className="eyebrow">CHỌN BÀI HỌC</div><strong>{displayTopic.title}</strong><span>{activeTopic ? displayTopic.description : 'Xem tổng quan toàn bộ 5 bài trong lộ trình'}</span></div><label className="lesson-select"><span>Đang học</span><select value={activeTopic?.id || 'ALL'} onChange={e => setActiveTopic(e.target.value === 'ALL' ? null : topics.find(topic => topic.id === e.target.value))}><option value="ALL">Tất cả bài giảng</option>{topics.map(topic => <option key={topic.id} value={topic.id}>{topic.id} · {topic.title}</option>)}</select></label></section><section className="workspace"><MindMap topic={displayTopic} graph={graph} onNodeClick={onNodeClick} recallEnabled={recallEnabled} setRecallEnabled={setRecallEnabled} /><RecallPartner lecture={currentLecture} /></section></main>;
+
+  return (
+    <div className="learning-workspace">
+      <main id="learning" className="mindmap-container">
+        <MindMap 
+          topic={displayTopic} 
+          graph={graph} 
+          onNodeClick={onNodeClick} 
+          recallEnabled={recallEnabled} 
+          setRecallEnabled={setRecallEnabled}
+          viewport={viewport}
+          setViewport={setViewport}
+          zoom={zoom}
+          reset={reset}
+          resetTrigger={resetTrigger}
+          fitViewTrigger={fitViewTrigger}
+          panelMode={panelMode}
+          panelSize={panelSize}
+        />
+        <RecallPartner 
+          lecture={currentLecture} 
+          setActiveTopic={setActiveTopic} 
+          panelMode={panelMode}
+          setPanelMode={setPanelMode}
+          panelSize={panelSize}
+          setPanelSize={setPanelSize}
+        />
+      </main>
+    </div>
+  );
 }
 
 function LibraryView({ orderedLectures, moveLecture, selectedId, setSelectedId }) {
@@ -405,11 +746,31 @@ function LibraryView({ orderedLectures, moveLecture, selectedId, setSelectedId }
 
 function ReviewView({ orderedLectures }) {
   const [reminder, setReminder] = useState(true);
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatRealtimeDate = (date) => {
+    const weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    const weekday = weekdays[date.getDay()];
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `HÔM NAY · ${weekday.toUpperCase()}, ${day}/${month} ${hours}:${minutes}:${seconds}`;
+  };
+
   const base = new Date('2026-07-28T19:30:00');
   const schedule = orderedLectures.flatMap((lecture, index) => spacing.map((gap, reviewIndex) => ({ lecture, reviewIndex, date: addDays(new Date(lecture.learnedAt || addDays(base, index)), gap) }))).sort((a, b) => a.date - b.date);
   const today = new Date('2026-07-30T12:00:00');
   const due = schedule.filter(item => item.date <= today).slice(0, 3);
-  return <main className="page-main" id="review"><div className="page-heading"><div><div className="eyebrow">REVIEW ENGINE / SPACED RECALL</div><h1>Lịch ôn<br /><em>tự chạy.</em></h1></div><p>Lịch lấy đúng 5 bài trong Thư viện và ngày học thực tế. Mỗi bài quay lại theo nhịp 1 · 3 · 7 · 14 · 30 ngày để Minh chủ động hỏi bạn.</p></div><section className="review-overview"><div className="next-review"><div className="eyebrow">HÔM NAY · {formatDate(today)}</div><h2>{due.length ? `${due.length} lượt recall đang chờ` : 'Bạn đã hoàn thành lịch hôm nay'}</h2><p>{due.length ? `Minh sẽ bắt đầu bằng bài “${due[0].lecture.title}”.` : 'Lịch mới sẽ tự xuất hiện sau bài học tiếp theo.'}</p><button className="button primary" onClick={() => setReminder(value => !value)}>{reminder ? '✓ AI đang nhắc lúc 19:30' : 'Bật AI chủ động nhắc'}</button></div><div className="method-card"><span className="method-icon">↗</span><div><strong>Nhịp giãn cách mặc định</strong><p>Ngày học → +1 → +3 → +7 → +14 → +30 ngày</p><small>Dùng các lần active recall ở khoảng cách tăng dần; nếu trả lời sai, có thể đưa bài về phiên gần hơn.</small></div></div></section><div className="review-section-head"><div><div className="eyebrow">YOUR TIMELINE</div><h2>Dòng thời gian ghi nhớ</h2></div><span>{schedule.length} phiên đã lên lịch</span></div><section className="timeline">{schedule.slice(0, 14).map((item, index) => <article className={`timeline-item ${item.date <= today ? 'due' : ''}`} key={`${item.lecture.id}-${item.reviewIndex}`}><div className="timeline-date"><strong>{formatDate(item.date)}</strong><span>{item.date <= today ? 'CẦN ÔN' : `LẦN ${item.reviewIndex + 1}`}</span></div><div className="timeline-connector"><i /></div><div className="timeline-content"><span>{item.lecture.id} · {item.lecture.tag}</span><h3>{item.lecture.title}</h3><p>{item.reviewIndex === 0 ? 'Recall nhanh: nói lại ý chính trong 60 giây.' : item.reviewIndex === 1 ? 'Giải thích lại bằng ví dụ của chính bạn.' : 'Kết nối bài này với một bài đã học trước.'}</p></div><button className="ask-button">Minh hỏi →</button></article>)}</section><div className="science-note">Lịch này là prototype dựa trên nguyên tắc học ngắt quãng, không phải khuyến nghị y khoa hay bảo đảm cho mọi người học. <a href="https://www.learningscientists.org/blog/2018/7/5-1" target="_blank" rel="noreferrer">Đọc cơ sở thiết kế ↗</a></div></main>;
+  return <main className="page-main" id="review"><div className="page-heading"><div><div className="eyebrow">REVIEW ENGINE / SPACED RECALL</div><h1>Lịch ôn<br /><em>tự chạy.</em></h1></div><p>Lịch lấy đúng 5 bài trong Thư viện và ngày học thực tế. Mỗi bài quay lại theo nhịp 1 · 3 · 7 · 14 · 30 ngày để Minh chủ động hỏi bạn.</p></div><section className="review-overview"><div className="next-review"><div className="eyebrow" style={{ fontVariantNumeric: 'tabular-nums' }}>{formatRealtimeDate(now)}</div><h2>{due.length ? `${due.length} lượt recall đang chờ` : 'Bạn đã hoàn thành lịch hôm nay'}</h2><p>{due.length ? `Minh sẽ bắt đầu bằng bài “${due[0].lecture.title}”.` : 'Lịch mới sẽ tự xuất hiện sau bài học tiếp theo.'}</p><button className="button primary" onClick={() => setReminder(value => !value)}>{reminder ? '✓ AI đang nhắc lúc 19:30' : 'Bật AI chủ động nhắc'}</button></div><div className="method-card"><span className="method-icon">↗</span><div><strong>Nhịp giãn cách mặc định</strong><p>Ngày học → +1 → +3 → +7 → +14 → +30 ngày</p><small>Dùng các lần active recall ở khoảng cách tăng dần; nếu trả lời sai, có thể đưa bài về phiên gần hơn.</small></div></div></section><div className="review-section-head"><div><div className="eyebrow">YOUR TIMELINE</div><h2>Dòng thời gian ghi nhớ</h2></div><span>{schedule.length} phiên đã lên lịch</span></div><section className="timeline">{schedule.slice(0, 14).map((item, index) => <article className={`timeline-item ${item.date <= today ? 'due' : ''}`} key={`${item.lecture.id}-${item.reviewIndex}`}><div className="timeline-date"><strong>{formatDate(item.date)}</strong><span>{item.date <= today ? 'CẦN ÔN' : `LẦN ${item.reviewIndex + 1}`}</span></div><div className="timeline-connector"><i /></div><div className="timeline-content"><span>{item.lecture.id} · {item.lecture.tag}</span><h3>{item.lecture.title}</h3><p>{item.reviewIndex === 0 ? 'Recall nhanh: nói lại ý chính trong 60 giây.' : item.reviewIndex === 1 ? 'Giải thích lại bằng ví dụ của chính bạn.' : 'Kết nối bài này với một bài đã học trước.'}</p></div><button className="ask-button">Minh hỏi →</button></article>)}</section><div className="science-note">Lịch này là prototype dựa trên nguyên tắc học ngắt quãng, không phải khuyến nghị y khoa hay bảo đảm cho mọi người học. <a href="https://www.learningscientists.org/blog/2018/7/5-1" target="_blank" rel="noreferrer">Đọc cơ sở thiết kế ↗</a></div></main>;
 }
 
 function App() {
@@ -420,6 +781,37 @@ function App() {
   const [orderedLectures, setOrderedLectures] = useState(lectures);
   const [selectedLectureId, setSelectedLectureId] = useState(lectures[0].id);
   const [recallEnabled, setRecallEnabled] = useState(true);
+
+  // Lifted viewport state and zoom helpers for global dashboard controls
+  const [viewport, setViewport] = useState({ x: 18, y: 93, scale: 0.5 });
+  const [resetTrigger, setResetTrigger] = useState(0);
+  const clamp = value => Math.min(1.5, Math.max(0.5, value));
+  const zoom = amount => setViewport(current => ({ ...current, scale: clamp(current.scale + amount) }));
+  const reset = () => setResetTrigger(curr => curr + 1);
+  const [fitViewTrigger, setFitViewTrigger] = useState(0);
+  const triggerFitView = () => setFitViewTrigger(curr => curr + 1);
+
+  const [showDayPicker, setShowDayPicker] = useState(false);
+  const hoverTimer = useRef(null);
+
+  const handleMouseEnterHocTap = () => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    setShowDayPicker(true);
+  };
+
+  const handleMouseLeaveHocTap = () => {
+    hoverTimer.current = setTimeout(() => {
+      setShowDayPicker(false);
+    }, 250);
+  };
+
+  const handleMouseEnterPanel = () => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+  };
+
+  const handleMouseLeavePanel = () => {
+    setShowDayPicker(false);
+  };
 
   const getDayId = topic => {
     return topic ? topic.id.toLowerCase().replace(' ', '') : 'day1';
@@ -464,12 +856,77 @@ function App() {
     }));
     setSelectedNode(null);
   };
+
   const moveLecture = (index, direction) => setOrderedLectures(items => { const next = [...items]; const target = index + direction; if (target < 0 || target >= next.length) return items; [next[index], next[target]] = [next[target], next[index]]; return next; });
-  const page = view === 'library' ? <LibraryView orderedLectures={orderedLectures} moveLecture={moveLecture} selectedId={selectedLectureId} setSelectedId={setSelectedLectureId} /> : view === 'review' ? <ReviewView orderedLectures={orderedLectures} /> : <LearningView activeTopic={activeTopic} setActiveTopic={setActiveTopic} graph={graph} onNodeClick={openNode} recallEnabled={recallEnabled} setRecallEnabled={setRecallEnabled} />;
+
+  const page = view === 'library'
+    ? <LibraryView orderedLectures={orderedLectures} moveLecture={moveLecture} selectedId={selectedLectureId} setSelectedId={setSelectedLectureId} />
+    : view === 'review'
+      ? <ReviewView orderedLectures={orderedLectures} />
+      : <LearningView 
+          activeTopic={activeTopic} 
+          setActiveTopic={setActiveTopic} 
+          graph={graph} 
+          onNodeClick={openNode} 
+          recallEnabled={recallEnabled} 
+          setRecallEnabled={setRecallEnabled}
+          viewport={viewport}
+          setViewport={setViewport}
+          zoom={zoom}
+          reset={reset}
+          resetTrigger={resetTrigger}
+          fitViewTrigger={fitViewTrigger}
+        />;
+
   return (
-    <>
-      <Header view={view} setView={setView} />
-      {page}
+    <div className="app-layout">
+      <Sidebar 
+        view={view} 
+        setView={setView} 
+        onMouseEnterHocTap={handleMouseEnterHocTap} 
+        onMouseLeaveHocTap={handleMouseLeaveHocTap} 
+      />
+      {showDayPicker && (
+        <aside 
+          className="day-picker-panel flyout"
+          onMouseEnter={handleMouseEnterPanel}
+          onMouseLeave={handleMouseLeavePanel}
+        >
+          <div className="day-picker-header">BÀI HỌC LỘ TRÌNH</div>
+          <div className="day-picker-list">
+
+            {topics.map(topic => (
+              <button 
+                key={topic.id} 
+                className={`day-picker-item ${activeTopic?.id === topic.id ? 'active' : ''}`} 
+                onClick={() => { setActiveTopic(topic); setShowDayPicker(false); }}
+              >
+                <span className="day-badge">{topic.id.replace('DAY ', 'D')}</span>
+                <div className="day-info">
+                  <strong>{topic.id}</strong>
+                  <span>{topic.title}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </aside>
+      )}
+      <div className="main-content">
+        <Dashboard 
+          view={view}
+          graph={graph}
+          recallEnabled={recallEnabled}
+          setRecallEnabled={setRecallEnabled}
+          viewport={viewport}
+          zoom={zoom}
+          reset={reset}
+          orderedLectures={orderedLectures}
+          fitView={triggerFitView}
+        />
+        <div className="view-container">
+          {page}
+        </div>
+      </div>
       <RecallModal node={selectedNode} step={selectedNode ? selectedNode.eyebrow : '01'} onClose={() => setSelectedNode(null)} onUnlock={submitRecall} />
       
       <nav className="bottom-nav">
@@ -486,7 +943,7 @@ function App() {
           <span className="nav-label">Thư viện</span>
         </button>
       </nav>
-    </>
+    </div>
   );
 }
 

@@ -1,0 +1,714 @@
+/* Workspace Layout Styles for Veuron */
+.app-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--cream);
+  font-family: Manrope, sans-serif;
+}
+
+/* Sidebar navigation */
+.app-sidebar {
+  display: flex;
+  flex-direction: column;
+  background: #edf5ec;
+  border-right: 1px solid var(--line);
+  padding: 24px 16px;
+  box-sizing: border-box;
+}
+
+.sidebar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  font-size: 23px;
+  letter-spacing: -1.5px;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.sidebar-brand span {
+  color: var(--green);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-nav button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.sidebar-nav button:hover {
+  background: #ffffff;
+  color: var(--green);
+}
+
+.sidebar-nav button.active {
+  background: var(--green);
+  color: #ffffff;
+}
+
+/* Right main content area */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Fixed Dashboard command bar */
+.dashboard-bar {
+  height: 66px;
+  border-bottom: 1px solid var(--line);
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 28px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.dashboard-left {
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.stat-badge {
+  font: 500 11px 'DM Mono', monospace;
+  color: var(--green);
+  background: #edf7e7;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.dashboard-right {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* View container */
+.view-container {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Học tập (Learning View) Layout */
+.learning-workspace {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+
+.day-picker-panel.flyout {
+  position: absolute;
+  left: 224px;
+  top: 76px;
+  width: 280px;
+  height: auto;
+  max-height: calc(100vh - 120px);
+  z-index: 100;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(24, 75, 43, 0.12);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  animation: slideInLeft 0.15s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.day-picker-header {
+  font: 500 10px 'DM Mono', monospace;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  padding-left: 8px;
+}
+
+.day-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.day-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.day-picker-item:hover {
+  border-color: var(--green);
+  box-shadow: 0 4px 12px #176b410c;
+  transform: translateY(-1px);
+}
+
+.day-picker-item.active {
+  border-color: var(--green);
+  background: #f7faf6;
+  box-shadow: 0 4px 12px #176b4112;
+}
+
+.day-badge {
+  font: 700 10px 'DM Mono', monospace;
+  color: var(--green);
+  background: #edf7e7;
+  padding: 4px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.day-picker-item.active .day-badge {
+  background: var(--lime);
+}
+
+.day-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.day-info strong {
+  font-size: 12px;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.day-info span {
+  font-size: 10px;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.mindmap-container {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Hide header controls inside MindMap since they are now in the Dashboard bar */
+#learning .map-header {
+  display: none !important;
+}
+
+/* Adjust map-card layout in learning view */
+#learning .map-card {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+/* Override existing margins for learning container in styles-graph.css */
+#learning {
+  height: 100% !important;
+  min-height: 0 !important;
+  background: #f6faf3 !important;
+}
+
+/* Hide old header */
+.topbar {
+  display: none !important;
+}
+
+/* Dashboard Switch styling override */
+.recall-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.5px;
+}
+
+.dashboard-bar .switch {
+  position: relative;
+  width: 68px;
+  height: 26px;
+  border-radius: 13px;
+  border: 0;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.15s;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
+  outline: none;
+}
+
+.dashboard-bar .switch.on {
+  background-color: var(--green);
+}
+
+.dashboard-bar .switch.off {
+  background-color: #ff5c5c;
+}
+
+.dashboard-bar .switch .slider {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background-color: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  z-index: 2;
+}
+
+.dashboard-bar .switch.on .slider {
+  transform: translateX(42px);
+}
+
+.dashboard-bar .switch .switch-text {
+  font: 800 9px Manrope, sans-serif;
+  color: #fff;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  pointer-events: none;
+  letter-spacing: 0.2px;
+}
+
+.dashboard-bar .switch.on .switch-text {
+  left: 12px;
+}
+
+.dashboard-bar .switch.off .switch-text {
+  right: 10px;
+}
+
+/* Balanced zoom and refresh buttons */
+.graph-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.graph-controls button {
+  width: 26px;
+  height: 26px;
+  border: 1px solid #d6e2d7;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--green);
+  font: 700 13px Manrope, sans-serif;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  transition: all 0.15s;
+}
+
+.graph-controls button:hover {
+  background: #eff8e9;
+  border-color: var(--green);
+}
+
+.graph-controls span {
+  min-width: 44px;
+  text-align: center;
+  font: 600 11px 'DM Mono', monospace;
+  color: var(--muted);
+}
+
+/* Node card text size improvements */
+.graph-node {
+  padding: 16px 20px !important;
+}
+
+.node-eyebrow {
+  font-size: 11px !important;
+  margin-bottom: 6px !important;
+}
+
+.node-title {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  line-height: 1.35 !important;
+}
+
+.core .node-title {
+  font-size: 23px !important;
+  margin-bottom: 6px !important;
+}
+
+.node-caption {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  margin-top: 8px !important;
+}
+
+/* Sidebar buttons layout & visual details */
+.sidebar-nav button {
+  gap: 10px !important;
+  padding: 10px 14px !important;
+  font-size: 13px !important;
+  border-radius: 8px !important;
+}
+
+.sidebar-nav button svg {
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.sidebar-nav button.active svg {
+  opacity: 1;
+}
+
+/* Node card text size & visibility improvements */
+.graph-node {
+  box-shadow: 0 6px 18px rgba(23, 107, 65, 0.05), 0 2px 4px rgba(0, 0, 0, 0.02) !important;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s !important;
+}
+
+.graph-node:not(.core):hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 28px rgba(23, 107, 65, 0.12), 0 4px 10px rgba(0, 0, 0, 0.04) !important;
+  border-color: #93b398 !important;
+}
+
+.node-caption {
+  color: #3b4c41 !important; /* Higher contrast text */
+}
+
+.node-eyebrow {
+  color: var(--green) !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+}
+
+/* Core node high-contrast text overrides */
+.core .node-eyebrow {
+  color: #b9f74c !important; /* Soft lime green, highly visible */
+  font-weight: 800 !important;
+  font-size: 12.5px !important;
+}
+
+.core .node-title {
+  color: #ffffff !important;
+}
+
+.core .node-caption {
+  color: #e2f3df !important; /* Soft light green-white, highly readable */
+  opacity: 0.95 !important;
+  font-size: 14.5px !important;
+  line-height: 1.5 !important;
+  margin-top: 12px !important;
+}
+
+/* Premium Feynman Panel Header & Avatar styling */
+.student-top {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.student-top .eyebrow {
+  font-family: 'Manrope', sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.8px !important;
+  color: var(--green) !important;
+}
+
+.student-top .student-badge {
+  font-family: 'Manrope', sans-serif !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  color: #176b41 !important;
+  background: #edf7e7 !important;
+  padding: 3px 8px !important;
+  border-radius: 99px !important;
+}
+
+.bot {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px !important;
+  background: #edf5ec;
+  border-radius: 12px;
+  margin-top: 0 !important;
+  margin-bottom: 16px !important;
+  border: 1px solid #d0e0cf;
+}
+
+.bot-face {
+  width: 36px !important;
+  height: 36px !important;
+  background: none !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.bot h3 {
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  color: var(--ink) !important;
+  margin: 0 0 2px 0 !important;
+}
+
+.chat-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  background: none !important;
+  border-radius: 0 !important;
+  margin-right: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Lesson MCQ button overrides */
+.lesson-mcq button {
+  border: 1px solid #c9dcc9 !important;
+  background: transparent !important;
+  color: var(--green) !important;
+  opacity: 0.55 !important;
+  transition: all 0.15s !important;
+}
+
+.lesson-mcq button.selected {
+  background: var(--green) !important;
+  border-color: var(--green) !important;
+  color: #fff !important;
+  opacity: 1 !important;
+}
+
+.lesson-mcq button:hover {
+  opacity: 1 !important;
+  background: #edf7e7 !important;
+}
+
+.lesson-mcq button.selected:hover {
+  background: var(--green) !important;
+  color: #fff !important;
+}
+
+/* Dashboard Tools Layout & Grouping */
+.dashboard-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #dce7df;
+  border-radius: 8px;
+  padding: 4px 10px;
+  height: 32px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 2px rgba(23, 107, 65, 0.02);
+}
+
+.info-icon, .toggle-icon {
+  font-size: 13px;
+  margin-right: 2px;
+}
+
+.info-text {
+  font: 600 11px 'DM Mono', monospace;
+  color: var(--green);
+}
+
+.toggle-group {
+  gap: 8px;
+}
+
+.toggle-group .toggle-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.toggle-group .switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  border: 0;
+  background-color: #d2ded5;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.2s;
+  outline: none;
+}
+
+.toggle-group .switch.on {
+  background-color: var(--green);
+}
+
+.toggle-group .switch.off {
+  background-color: #ff5c5c;
+}
+
+.toggle-group .switch .slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.toggle-group .switch.on .slider {
+  transform: translateX(16px);
+}
+
+.switch-status {
+  font: 800 10px Manrope, sans-serif;
+  min-width: 44px;
+}
+
+.switch-status.on {
+  color: var(--green);
+}
+
+.switch-status.off {
+  color: #ff5c5c;
+}
+
+/* Zoom Group Styles */
+.zoom-group {
+  gap: 0;
+  padding: 0 6px;
+}
+
+.tool-btn {
+  border: 0;
+  background: transparent;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: 700 14px Manrope, sans-serif;
+  color: var(--green);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+  padding: 0;
+}
+
+.tool-btn:hover {
+  background: #edf7e7;
+}
+
+.zoom-text {
+  font: 600 11px 'DM Mono', monospace;
+  color: var(--muted);
+  min-width: 40px;
+  text-align: center;
+}
+
+.tool-divider {
+  width: 1px;
+  height: 16px;
+  background: #dce7df;
+  margin: 0 8px;
+}
+
+.reset-btn {
+  font-size: 13px;
+}
+
+/* Make layout clean on mobile / tablet */
+@media (max-width: 900px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+  .app-sidebar {
+    display: none;
+  }
+  .learning-workspace {
+    grid-template-columns: 1fr;
+  }
+  .day-picker-panel {
+    display: none;
+  }
+}
+
+.graph-stage {
+  transform-origin: 0 0 !important;
+}
