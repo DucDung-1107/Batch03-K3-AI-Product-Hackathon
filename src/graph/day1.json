@@ -1,0 +1,298 @@
+{
+  "format": "hierarchical-mindmap",
+  "version": "2.0",
+  "title": "AI & LLM Foundation",
+  "instructions_for_renderer": {
+    "layout": "radial",
+    "root_position": "center",
+    "branch_style": "curved",
+    "expand_from": "center_outward",
+    "show_fields": ["label"],
+    "use_clue_as": "node_tooltip_or_speaker_note",
+    "use_detail_as": "node_tooltip_or_detail_panel",
+    "color_rule": "inherit_parent_color_unless_color_is_set"
+  },
+  "root": {
+    "id": "root",
+    "label": "AI & LLM\nFOUNDATION",
+    "color": "#F59E0B",
+    "clue": "Muốn xây dựng AI Agent thực chiến: cần lần lượt hiểu bức tranh AI, LLM, token, API, cách làm sản phẩm và nguồn học sâu.",
+    "children": [
+      {
+        "id": "landscape",
+        "label": "AI 2025\n& Agentic AI",
+        "color": "#22C55E",
+        "clue": "AI đã thay đổi từ việc trả lời hay sang tạo giá trị bằng hành động tự động như thế nào?",
+        "children": [
+          {
+            "id": "shift",
+            "label": "Chuyển dịch trọng tâm",
+            "clue": "Doanh nghiệp thực sự đòi hỏi gì ở AI?",
+            "children": [
+              {"id": "shift-1", "label": "Không chỉ câu trả lời hay", "detail": "Generative AI tối ưu chất lượng phản hồi ngôn ngữ và nội dung."},
+              {"id": "shift-2", "label": "AI biết hành động", "detail": "Agentic AI biết phân tích mục tiêu, lập kế hoạch và thực thi."},
+              {"id": "shift-3", "label": "Kết nối công cụ ngoài", "detail": "Agent dùng API, tìm kiếm, cơ sở dữ liệu hoặc phần mềm nghiệp vụ."},
+              {"id": "shift-4", "label": "Tạo ROI rõ ràng", "detail": "Đánh giá AI qua hiệu quả vận hành và giá trị kinh doanh."}
+            ]
+          },
+          {
+            "id": "metrics",
+            "label": "Tín hiệu thị trường",
+            "clue": "Mức độ áp dụng và tác động kinh tế được thể hiện ra sao?",
+            "children": [
+              {"id": "metric-78", "label": "78% doanh nghiệp", "detail": "Đã chính thức dùng AI trong quy trình nghiệp vụ; số liệu tài liệu mốc 2025."},
+              {"id": "metric-15-7", "label": "15,7T USD GDP", "detail": "Dự báo đóng góp vào GDP toàn cầu tới năm 2030."},
+              {"id": "metric-3-7", "label": "ROI trung bình 3,7x", "detail": "Trung bình 1 USD đầu tư ban đầu tạo 3,7 USD giá trị theo tài liệu."}
+            ]
+          },
+          {
+            "id": "taxonomy",
+            "label": "AI taxonomy",
+            "clue": "LLM nằm ở đâu trong các lớp công nghệ AI?",
+            "children": [
+              {"id": "tax-ai", "label": "Artificial Intelligence", "detail": "Máy làm các tác vụ cần trí thông minh."},
+              {"id": "tax-ml", "label": "Machine Learning", "detail": "Học từ dữ liệu thay vì viết mọi quy tắc tường minh."},
+              {"id": "tax-dl", "label": "Deep Learning", "detail": "ML dùng mạng nơ-ron nhiều tầng cho dữ liệu phức tạp."},
+              {"id": "tax-fm", "label": "Foundation Models", "detail": "Mô hình lớn, huấn luyện dữ liệu lớn, phục vụ đa tác vụ hạ nguồn."},
+              {"id": "tax-llm", "label": "Large Language Models", "detail": "Foundation Model chuyên ngôn ngữ; engine của GenAI và Agentic AI."}
+            ]
+          },
+          {
+            "id": "ai-types",
+            "label": "Ba nhóm AI",
+            "clue": "Bài toán cần gán nhãn, tạo nội dung hay tự hoàn thành mục tiêu?",
+            "children": [
+              {"id": "disc", "label": "Discriminative AI", "clue": "Cần dự đoán một nhãn từ dữ liệu đầu vào?", "children": [{"id": "disc-formula", "label": "Input → Label"}, {"id": "disc-examples", "label": "Spam · ảnh · gian lận"}]},
+              {"id": "gen", "label": "Generative AI", "clue": "Cần sinh mới văn bản, code, ảnh hoặc âm thanh?", "children": [{"id": "gen-formula", "label": "Prompt → Content"}, {"id": "gen-examples", "label": "ChatGPT · Claude · DALL-E"}]},
+              {"id": "agentic", "label": "Agentic AI", "clue": "Cần AI theo đuổi mục tiêu qua nhiều bước và công cụ?", "children": [{"id": "agentic-formula", "label": "Goal → Plan → Action"}, {"id": "agentic-examples", "label": "Coding · support · research agent"}]}
+            ]
+          },
+          {"id": "landscape-conclusion", "label": "Trọng tâm học", "detail": "Xây hệ Agentic AI dựa trên năng lực suy luận của LLM Engine."}
+        ]
+      },
+      {
+        "id": "llm",
+        "label": "LLM\nCơ chế & giới hạn",
+        "color": "#3B82F6",
+        "clue": "LLM tạo ra năng lực ngôn ngữ bằng cách nào, và không thể làm gì nếu không có hệ thống hỗ trợ?",
+        "children": [
+          {
+            "id": "llm-definition",
+            "label": "LLM là gì?",
+            "clue": "Một LLM được tạo và căn chỉnh bằng các thành phần nào?",
+            "children": [
+              {"id": "llm-transformer", "label": "Kiến trúc Transformer"},
+              {"id": "llm-pretrain-data", "label": "Hàng nghìn tỷ token dữ liệu"},
+              {"id": "llm-self-supervised", "label": "Self-supervised pre-training"},
+              {"id": "llm-aligned", "label": "SFT + RLHF/DPO", "detail": "Tinh chỉnh để phản hồi hữu ích và an toàn hơn."}
+            ]
+          },
+          {
+            "id": "next-token",
+            "label": "Dự đoán token kế tiếp",
+            "clue": "LLM “hiểu” hay thực ra đang làm phép dự đoán nào?",
+            "children": [
+              {"id": "auto-regressive", "label": "Autoregressive", "detail": "Đọc từ trái sang phải và sinh tuần tự."},
+              {"id": "probability", "label": "Phân phối xác suất", "detail": "Chọn token dựa trên toàn bộ ngữ cảnh được nạp."},
+              {"id": "not-human-understanding", "label": "Không phải hiểu như người", "detail": "Cơ chế sinh xác suất không tự bảo đảm sự thật hay logic."},
+              {"id": "scaling", "label": "Scaling", "detail": "Tăng tham số, dữ liệu và compute có thể làm xuất hiện năng lực phức tạp hơn."}
+            ]
+          },
+          {
+            "id": "transformer-flow",
+            "label": "Luồng Transformer",
+            "clue": "Văn bản di chuyển qua các bước nào trước khi ra token tiếp theo?",
+            "children": [
+              {"id": "flow-input", "label": "1. Input tokens"},
+              {"id": "flow-embed", "label": "2. Embedding + position"},
+              {"id": "flow-attention", "label": "3. Self-attention × N"},
+              {"id": "flow-ffn", "label": "4. Feed-forward × N"},
+              {"id": "flow-output", "label": "5. Next-token probability"}
+            ]
+          },
+          {
+            "id": "attention",
+            "label": "Self-attention",
+            "clue": "Khi gặp từ “Nó”, model tìm đúng thực thể tham chiếu bằng cách nào?",
+            "children": [
+              {"id": "attention-why", "label": "Gán trọng số liên kết", "detail": "Mỗi token có thể chú ý đến các token liên quan trong chuỗi."},
+              {"id": "attention-example", "label": "“Nó” → “mèo”", "detail": "Trong “Con mèo ngồi trên bàn. Nó rất đáng yêu”, attention ưu tiên “mèo” thay vì “bàn”."},
+              {"id": "attention-formula", "label": "Attention(Q,K,V)", "detail": "softmax((Q × Kᵀ) / √d_k) × V"},
+              {"id": "attention-q", "label": "Q = Query"},
+              {"id": "attention-k", "label": "K = Key"},
+              {"id": "attention-v", "label": "V = Value"},
+              {"id": "attention-dk", "label": "d_k = chuẩn hóa chiều key"}
+            ]
+          },
+          {
+            "id": "tokens",
+            "label": "Token & tokenization",
+            "clue": "Vì sao token là đơn vị quan trọng cho cả ngữ cảnh lẫn chi phí?",
+            "children": [
+              {"id": "token-subword", "label": "Token là subword", "detail": "Tokenizer chia văn bản thành các mảnh nhỏ để mô hình xử lý."},
+              {"id": "token-en", "label": "~0,75 từ tiếng Anh / token"},
+              {"id": "token-vi", "label": "~0,5 từ tiếng Việt / token"},
+              {"id": "token-vi-cost", "label": "Tiếng Việt tốn 1,5–2×", "detail": "Dấu thanh và Unicode làm chi phí API tăng so với lượng thông tin tiếng Anh tương đương."}
+            ]
+          },
+          {
+            "id": "training",
+            "label": "Ba giai đoạn huấn luyện",
+            "clue": "Làm sao model đi từ biết ngôn ngữ đến trả lời đúng yêu cầu và an toàn?",
+            "children": [
+              {"id": "pretraining", "label": "1. Pre-training", "detail": "Đọc văn bản thô quy mô lớn để học ngôn ngữ, kiến thức tổng quát và liên kết ngữ cảnh."},
+              {"id": "sft", "label": "2. SFT", "detail": "Học cặp hỏi–đáp mẫu chất lượng để theo đúng cấu trúc yêu cầu."},
+              {"id": "rlhf-dpo", "label": "3. RLHF / DPO", "detail": "Căn chỉnh bằng phản hồi hoặc so sánh sở thích của con người."},
+              {"id": "alignment-result", "label": "Mục tiêu căn chỉnh", "children": [{"id": "safe", "label": "An toàn"}, {"id": "helpful", "label": "Hữu ích"}, {"id": "honest", "label": "Trung thực hơn"}, {"id": "less-toxic", "label": "Ít độc hại"}]}
+            ]
+          },
+          {
+            "id": "limits",
+            "label": "Giới hạn bẩm sinh",
+            "clue": "Khi nào cần RAG, tìm kiếm, kiểm chứng hoặc quản lý ngữ cảnh?",
+            "children": [
+              {"id": "cutoff", "label": "Knowledge cutoff", "children": [{"id": "cutoff-problem", "label": "Không biết sự kiện mới"}, {"id": "cutoff-solution", "label": "Bổ sung search hoặc RAG"}]},
+              {"id": "hallucination", "label": "Hallucination", "children": [{"id": "hallucination-cause", "label": "Tối ưu xác suất, không tối ưu sự thật"}, {"id": "hallucination-risk", "label": "Có thể sai nhưng rất tự tin"}]},
+              {"id": "context-limit", "label": "Context window", "children": [{"id": "context-cost", "label": "Context dài → chi phí cao"}, {"id": "lost-middle", "label": "Lost in the Middle"}, {"id": "context-memory", "label": "Bộ nhớ phiên có giới hạn"}]}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "economy",
+        "label": "Token Economy\n& chọn model",
+        "color": "#8B5CF6",
+        "clue": "Làm sao chọn model phù hợp thay vì luôn dùng model mạnh nhất?",
+        "children": [
+          {
+            "id": "pricing",
+            "label": "Cấu trúc chi phí",
+            "clue": "Một API call bị tính tiền theo những phần nào?",
+            "children": [
+              {"id": "input-price", "label": "Input tokens", "detail": "Prompt, câu hỏi và tài liệu ngữ cảnh gửi vào."},
+              {"id": "output-price", "label": "Output tokens", "detail": "Nội dung model sinh ra."},
+              {"id": "output-more", "label": "Output đắt hơn 3–5×", "detail": "Theo nguyên tắc tổng quát trong tài liệu."}
+            ]
+          },
+          {
+            "id": "model-catalog",
+            "label": "Model tham chiếu\n(03/2026)",
+            "clue": "Mỗi model mạnh ở loại công việc nào?",
+            "children": [
+              {"id": "opus", "label": "Claude 3.5 Opus", "detail": "1M context · $5 input/$25 output mỗi 1M · suy luận, planning, code khó."},
+              {"id": "sonnet", "label": "Claude 3.5 Sonnet", "detail": "1M context · $3/$15 · lựa chọn cân bằng cho Agent."},
+              {"id": "haiku", "label": "Claude 3.5 Haiku", "detail": "200K context · $0,80/$4 · phân loại, điều phối, độ trễ thấp."},
+              {"id": "gpt4o", "label": "GPT-4o", "detail": "128K context · $5/$20 · xử lý đa phương thức."},
+              {"id": "gemini-pro", "label": "Gemini 2.5 Pro", "detail": "1M context · $1,25/$10 · tài liệu lớn và context dài."},
+              {"id": "llama", "label": "Llama 4 Scout", "detail": "1M context · self-host · phù hợp hệ thống bảo mật nội bộ."}
+            ]
+          },
+          {
+            "id": "selection",
+            "label": "Khung quyết định",
+            "clue": "Chất lượng hay cost/latency mới là bottleneck thực tế?",
+            "children": [
+              {"id": "rule-thumb", "label": "Đủ tốt + đủ rẻ trước", "detail": "Chỉ nâng cấp khi model nhỏ là nút thắt chất lượng."},
+              {"id": "cost-latency", "label": "Ưu tiên cost / latency", "children": [{"id": "fast-tasks", "label": "FAQ · phân loại · trích xuất · batch"}, {"id": "fast-models", "label": "Haiku · Flash · open model nhỏ"}, {"id": "fast-output", "label": "Đầu ra ngắn, ít suy luận"}]},
+              {"id": "quality-reasoning", "label": "Ưu tiên quality / reasoning", "children": [{"id": "quality-tasks", "label": "Planning · debugging · code"}, {"id": "quality-input", "label": "Context dài, yêu cầu tin cậy"}, {"id": "quality-models", "label": "Sonnet · Opus · GPT-4o · Pro"}]}
+            ]
+          },
+          {
+            "id": "chatbot-case",
+            "label": "Case: chatbot 1.000 lượt/ngày",
+            "clue": "Tính chi phí theo workload cụ thể như thế nào?",
+            "children": [
+              {"id": "case-input", "label": "500 input token/lượt"},
+              {"id": "case-output", "label": "200 output token/lượt"},
+              {"id": "case-sonnet", "label": "Sonnet: $4,50/ngày", "children": [{"id": "sonnet-in", "label": "Input: $1,50"}, {"id": "sonnet-out", "label": "Output: $3,00"}, {"id": "sonnet-month", "label": "~$135/tháng (~3,35M VNĐ)"}]},
+              {"id": "case-haiku", "label": "Haiku: $1,20/ngày", "children": [{"id": "haiku-in", "label": "Input: $0,40"}, {"id": "haiku-out", "label": "Output: $0,80"}, {"id": "haiku-month", "label": "~$36/tháng (~900K VNĐ)"}]}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "api",
+        "label": "API Call\n& điều khiển output",
+        "color": "#06B6D4",
+        "clue": "Làm sao đi từ prompt đến response và điều chỉnh hành vi sinh của model?",
+        "children": [
+          {
+            "id": "api-flow",
+            "label": "Vòng đời API call",
+            "clue": "Một lần gọi API có các chặng nào?",
+            "children": [
+              {"id": "api-prompt", "label": "1. Prompt", "children": [{"id": "system", "label": "System"}, {"id": "user", "label": "User input"}, {"id": "context", "label": "Context"}]},
+              {"id": "api-request", "label": "2. API request"},
+              {"id": "api-stream", "label": "3. Token stream"},
+              {"id": "api-response", "label": "4. Response", "children": [{"id": "usage", "label": "Usage"}, {"id": "stop-reason", "label": "Stop reason"}]}
+            ]
+          },
+          {
+            "id": "parameters",
+            "label": "Tham số điều khiển",
+            "clue": "Bạn cần ổn định, đa dạng hay dừng đúng cấu trúc?",
+            "children": [
+              {"id": "temperature", "label": "Temperature (0–1)", "children": [{"id": "temp-low", "label": "0: code · tài chính · ổn định"}, {"id": "temp-high", "label": "0,7–1,0: sáng tạo · đa dạng"}]},
+              {"id": "top-p", "label": "Top_p (0–1)", "children": [{"id": "top-p-meaning", "label": "Chọn trong khối xác suất tích lũy"}, {"id": "top-p-range", "label": "Thường 0,9–0,95"}]},
+              {"id": "stop", "label": "Stop sequences", "children": [{"id": "stop-effect", "label": "Dừng khi gặp chuỗi quy định"}, {"id": "stop-use", "label": "Kiểm soát output có cấu trúc"}]}
+            ]
+          },
+          {
+            "id": "providers",
+            "label": "Cú pháp theo provider",
+            "clue": "Cùng một ý tưởng gọi model nhưng cách gọi và đọc kết quả khác nhau ở đâu?",
+            "children": [
+              {"id": "anthropic", "label": "Anthropic", "children": [{"id": "anthropic-call", "label": "messages.create()"}, {"id": "anthropic-max", "label": "max_tokens: bắt buộc"}, {"id": "anthropic-result", "label": ".content[0].text"}]},
+              {"id": "openai", "label": "OpenAI", "children": [{"id": "openai-call", "label": "chat.completions.create()"}, {"id": "openai-max", "label": "max_tokens: tùy chọn"}, {"id": "openai-result", "label": ".choices[0].message.content"}]},
+              {"id": "google", "label": "Google Gemini", "children": [{"id": "google-call", "label": "generate_content()"}, {"id": "google-max", "label": "max_tokens: tùy chọn"}, {"id": "google-result", "label": ".text"}]}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vibe",
+        "label": "Vibe Coding\n& thực hành",
+        "color": "#EC4899",
+        "clue": "Nếu AI là người viết nhanh, con người cần đóng vai gì để sản phẩm đúng và an toàn?",
+        "children": [
+          {
+            "id": "vibe-thinking",
+            "label": "Tư duy Vibe Coding",
+            "clue": "Vai trò công việc dịch chuyển từ gõ code sang đâu?",
+            "children": [
+              {"id": "vibe-director", "label": "Con người = Đạo diễn AI"},
+              {"id": "vibe-intent", "label": "Intent-driven", "children": [{"id": "intent-output", "label": "Nêu rõ output mong muốn"}, {"id": "intent-acceptance", "label": "Đặt tiêu chí nghiệm thu"}, {"id": "intent-success", "label": "Đặt chỉ số thành công"}]},
+              {"id": "vibe-context", "label": "Context-first", "children": [{"id": "context-folders", "label": "Cấu trúc thư mục"}, {"id": "context-config", "label": "Tệp cấu hình"}, {"id": "context-constraints", "label": "Ràng buộc kỹ thuật"}, {"id": "context-errors", "label": "Lịch sử lỗi chi tiết"}]},
+              {"id": "vibe-review", "label": "Human review", "children": [{"id": "review-logic", "label": "Kiểm tra logic"}, {"id": "review-security", "label": "Kiểm tra an toàn"}, {"id": "review-release", "label": "Người duyệt vận hành"}]}
+            ]
+          },
+          {
+            "id": "lab",
+            "label": "Lab #1: Chatbot đa kết nối",
+            "clue": "Làm thế nào tự tay so sánh Anthropic, OpenAI và Gemini?",
+            "children": [
+              {"id": "lab-goal", "label": "Mục tiêu", "children": [{"id": "goal-3providers", "label": "Kết nối 3 provider"}, {"id": "goal-terminal", "label": "Chatbot chạy terminal"}, {"id": "goal-streaming", "label": "Streaming thời gian thực"}, {"id": "goal-latency", "label": "Đo latency"}]},
+              {"id": "lab-setup", "label": "Chuẩn bị", "children": [{"id": "setup-python", "label": "Python 3.10+"}, {"id": "setup-ide", "label": "VS Code / Cursor"}, {"id": "setup-key", "label": "API key của 3 nền tảng"}]},
+              {"id": "lab-steps", "label": "Triển khai", "children": [{"id": "step-venv", "label": "1. python -m venv .venv"}, {"id": "step-pip", "label": "2. pip install anthropic openai google-generativeai"}, {"id": "step-script", "label": "3. Viết script 3 provider"}, {"id": "step-compare", "label": "4. So sánh 3 prompt"}]},
+              {"id": "lab-evaluation", "label": "Tiêu chí đánh giá", "children": [{"id": "eval-latency", "label": "Latency"}, {"id": "eval-cost", "label": "Cost"}, {"id": "eval-quality", "label": "Quality"}]}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "references",
+        "label": "Đào sâu\n& tài liệu gốc",
+        "color": "#F97316",
+        "clue": "Sau phần nền tảng, nên đọc tài liệu nào để hiểu sâu cơ chế và thực hành?",
+        "children": [
+          {"id": "paper-transformer", "label": "Attention Is All You Need", "detail": "Vaswani et al. (2017) — nền tảng Transformer.", "url": "https://arxiv.org/abs/1706.03762"},
+          {"id": "paper-rlhf", "label": "InstructGPT / RLHF", "detail": "Ouyang et al. (2022) — căn chỉnh bằng phản hồi con người.", "url": "https://arxiv.org/abs/2203.02155"},
+          {"id": "paper-dpo", "label": "Direct Preference Optimization", "detail": "Rafailov et al. (2023) — căn chỉnh trực tiếp bằng sở thích.", "url": "https://arxiv.org/abs/2305.18290"},
+          {"id": "karpathy", "label": "State of GPT", "detail": "Andrej Karpathy (2023) — huấn luyện và vận hành GPT."},
+          {"id": "tokenizer", "label": "OpenAI Tokenizer", "detail": "Công cụ xem và ước tính token.", "url": "https://platform.openai.com/tokenizer"},
+          {"id": "quickstarts", "label": "API Quickstarts", "detail": "Tài liệu chính thức: Anthropic API, OpenAI API, Google AI Studio."}
+        ]
+      }
+    ]
+  }
+}

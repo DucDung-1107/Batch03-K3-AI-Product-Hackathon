@@ -1,0 +1,7 @@
+.graph-stage{left:50%;top:50%;margin-left:-550px;margin-top:-310px;width:1100px;height:620px}
+.graph-edges{width:1100px;height:620px}
+.graph-node.branch-1{background:#f0fae9}.graph-node.branch-2{background:#fff}.graph-node.branch-3{background:#f5f1e8}
+.graph-node.dragging{cursor:grabbing;box-shadow:0 22px 42px #176b4140;border-color:var(--green);z-index:4}.map-card-full{height:100%}.graph-canvas-full{min-height:clamp(560px,calc(100vh - 310px),780px)}#learning{max-width:none;width:100%;padding-left:3vw;padding-right:3vw}.workspace{grid-template-columns:minmax(0,1fr) 320px;align-items:stretch}.student-card{height:100%;min-height:clamp(560px,calc(100vh - 310px),780px);position:sticky;top:18px}.map-card{min-width:0}
+@media(max-width:1000px){.workspace{grid-template-columns:minmax(0,1fr) 285px}}
+@media(max-width:800px){#learning{padding-left:5.6vw;padding-right:5.6vw}.workspace{grid-template-columns:1fr}.student-card{position:static;min-height:0;height:auto}.graph-canvas-full{min-height:560px}}
+@media(max-width:800px){.graph-stage{transform-origin:465px 210px}}

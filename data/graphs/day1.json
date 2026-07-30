@@ -1,0 +1,19 @@
+{
+  "id": "day1-foundation",
+  "title": "AI & LLM Foundation",
+  "rootId": "day1-root",
+  "nodes": [
+    { "id": "day1-root", "parentId": null, "label": "AI & LLM Foundation", "eyebrow": "DAY 1 · CORE", "caption": "Nền tảng để hiểu Generative AI và Agentic AI", "question": "Hãy nói lại: AI, ML, DL, Foundation Model và LLM liên hệ với nhau như thế nào?", "x": 425, "y": 245, "width": 250, "height": 112 },
+    { "id": "ai-taxonomy", "parentId": "day1-root", "label": "AI taxonomy", "eyebrow": "01 · LANDSCAPE", "caption": "AI → ML → DL → Foundation Model → LLM", "question": "Hãy xếp AI, ML, DL, Foundation Model và LLM thành một chuỗi từ rộng đến chuyên biệt.", "x": 40, "y": 45, "width": 225, "height": 88 },
+    { "id": "ai-families", "parentId": "day1-root", "label": "Ba nhóm AI", "eyebrow": "02 · TYPES", "caption": "Discriminative · Generative · Agentic", "question": "Generative AI và Agentic AI khác nhau thế nào về đầu vào, đầu ra và khả năng hành động?", "x": 40, "y": 260, "width": 225, "height": 88 },
+    { "id": "llm-engine", "parentId": "day1-root", "label": "LLM engine", "eyebrow": "03 · LANGUAGE", "caption": "Next-token prediction và context window", "question": "LLM dự đoán token tiếp theo dựa trên điều gì, và vì sao không nên hiểu nó như con người hiểu ngôn ngữ?", "x": 835, "y": 45, "width": 225, "height": 88 },
+    { "id": "transformer", "parentId": "llm-engine", "label": "Transformer", "eyebrow": "03A · ARCHITECTURE", "caption": "Decoder-only · autoregressive", "question": "Chuỗi xử lý của Transformer từ input token đến xác suất token tiếp theo gồm những bước nào?", "x": 835, "y": 205, "width": 225, "height": 88 },
+    { "id": "attention", "parentId": "transformer", "label": "Self-attention", "eyebrow": "03B · MECHANISM", "caption": "Q · K · V và giữ ngữ cảnh", "question": "Trong câu “Con mèo ngồi trên bàn. Nó rất đáng yêu”, attention giúp từ “Nó” liên hệ với “mèo” như thế nào?", "x": 835, "y": 365, "width": 225, "height": 88 },
+    { "id": "tokenization", "parentId": "llm-engine", "label": "Tokenization", "eyebrow": "03C · TOKENS", "caption": "Text được chia thành subword", "question": "Token là gì và vì sao cùng một nội dung tiếng Việt có thể tốn nhiều token hơn tiếng Anh?", "x": 560, "y": 45, "width": 225, "height": 88 },
+    { "id": "token-economy", "parentId": "tokenization", "label": "Token economy", "eyebrow": "03D · COST", "caption": "Input · output · context · API cost", "question": "Input token và output token ảnh hưởng thế nào đến chi phí và độ trễ của một API call?", "x": 560, "y": 205, "width": 225, "height": 88 },
+    { "id": "training", "parentId": "llm-engine", "label": "LLM training", "eyebrow": "04 · TRAINING", "caption": "Pre-training · SFT · RLHF / DPO", "question": "Ba giai đoạn huấn luyện LLM là gì và mỗi giai đoạn đóng góp điều gì cho model?", "x": 560, "y": 365, "width": 225, "height": 88 },
+    { "id": "limitations", "parentId": "llm-engine", "label": "Giới hạn LLM", "eyebrow": "05 · LIMITS", "caption": "Cutoff · hallucination · lost in the middle", "question": "Kể tên ba giới hạn bẩm sinh của LLM và một cách dùng công cụ bên ngoài để giảm rủi ro.", "x": 835, "y": 525, "width": 225, "height": 88 },
+    { "id": "agentic-ai", "parentId": "ai-families", "label": "Agentic AI", "eyebrow": "06 · ACTION", "caption": "Goal → Plan → Action", "question": "Một hệ thống cần có những năng lực nào để được gọi là Agent thay vì chỉ là chatbot?", "x": 40, "y": 420, "width": 225, "height": 88 },
+    { "id": "roi", "parentId": "agentic-ai", "label": "AI trong doanh nghiệp", "eyebrow": "06A · VALUE", "caption": "Tool use · automation · ROI", "question": "Vì sao doanh nghiệp không chỉ cần câu trả lời hay mà còn cần AI biết hành động và tạo ra ROI?", "x": 320, "y": 525, "width": 225, "height": 88 }
+  ]
+}
