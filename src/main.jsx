@@ -20,7 +20,7 @@ const lectures = [
 
 const topics = lectures.map((lecture, index) => ({ id: lecture.id, tag: `${String(index + 1).padStart(2, '0')} / ${lecture.tag}`, title: lecture.title, description: lecture.summary, node: lecture.node }));
 const spacing = [1, 3, 7, 14, 30];
-const API_ORIGIN = typeof window === 'undefined' ? 'http://127.0.0.1:8787' : `${window.location.protocol}//${window.location.hostname}:8787`;
+const API_ORIGIN = typeof window === 'undefined' ? 'http://127.0.0.1:8000' : `${window.location.protocol}//${window.location.hostname}:8000`;
 const formatDate = date => new Intl.DateTimeFormat('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' }).format(date);
 const addDays = (date, days) => { const next = new Date(date); next.setDate(next.getDate() + days); return next; };
 
@@ -188,7 +188,7 @@ function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled })
   return <div className="map-card map-card-full"><div className="map-header"><div><div className="eyebrow">{topic.id} / NEURAL MAP</div><h2>Kéo node, phóng to và tự mở rộng ý</h2></div><div className="map-header-right"><div className="progress">{nodes.length} / {graph?.totalNodes || nodes.length} node hiện</div><div className="recall-toggle-row"><span className="toggle-label">BẮT BUỘC RECALL</span><button className={`switch ${recallEnabled ? 'on' : 'off'}`} onClick={() => setRecallEnabled(!recallEnabled)} aria-label="Bật tắt yêu cầu trả lời trước khi mở nhánh mới"><span className="slider" /><span className="switch-text">{recallEnabled ? 'ON' : 'OFF'}</span></button></div><div className="graph-controls"><button onClick={() => zoom(-.12)} aria-label="Thu nhỏ">−</button><span>{Math.round(viewport.scale * 100)}%</span><button onClick={() => zoom(.12)} aria-label="Phóng to">+</button><button onClick={reset} aria-label="Đặt lại graph">↺</button></div></div></div><div ref={canvasRef} className="map-canvas graph-canvas graph-canvas-full" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag}><div className="graph-stage" style={{ transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.scale})` }}><svg className="graph-edges" viewBox="0 0 1100 620" aria-hidden="true">{edges.map(edge => { const source = nodeMap[edge.source]; const target = nodeMap[edge.target]; return source && target ? <path key={`${edge.source}-${edge.target}`} className="edge edge-live" d={pathFor(source, target)} /> : null; })}<circle className="edge-orb" cx={orbX} cy={orbY} r="5" /></svg>{nodes.map((node, index) => { const position = positionOf(node); const isLeaf = node.isLeaf ?? !node.hasChildren; return <button key={node.id} className={`graph-node ${node.id === graph.rootId ? 'core' : `branch branch-${index % 3 + 1}`} ${isLeaf ? 'leaf' : 'expandable'} ${drag.current?.nodeId === node.id ? 'dragging' : ''}`} style={{ left: position.x, top: position.y, width: position.width, minHeight: position.height }} onPointerDown={event => onNodePointerDown(event, node)} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } onNodeClick(node); }}><span className="node-eyebrow">{node.eyebrow}</span><span className="node-title">{node.label}</span><span className="node-caption">{node.caption}</span><span className="node-pulse" /></button>; })}</div><div className="graph-hint"><span>✥</span>Nhấn giữ node để kéo · kéo nền để pan · lăn chuột để zoom</div></div></div>;
 }
 
-function RecallPartner({ lecture }) {
+function LegacyRecallPartner({ lecture }) {
   const [answer, setAnswer] = useState('');
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -284,6 +284,89 @@ function RecallPartner({ lecture }) {
       </div>
     </aside>
   );
+}
+
+function RecallPartner({ lecture }) {
+  const [selectedLessonId, setSelectedLessonId] = useState(lecture?.id || 'DAY 1');
+  const [messages, setMessages] = useState([]);
+  const [answer, setAnswer] = useState('');
+  const [loop, setLoop] = useState(0);
+  const [nLoop, setNLoop] = useState(3);
+  const [started, setStarted] = useState(false);
+  const [done, setDone] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [status, setStatus] = useState('Chọn bài giảng, rồi bắt đầu phiên Feynman chủ động.');
+  const [guardrail, setGuardrail] = useState(null);
+  const [panelMode, setPanelMode] = useState('compact');
+  const sessionId = useRef(`manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
+  const selectedLecture = lectures.find(item => item.id === selectedLessonId) || lectures[0];
+
+  const resetSession = (lessonId = selectedLessonId) => {
+    sessionId.current = `manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    setSelectedLessonId(lessonId); setMessages([]); setAnswer(''); setLoop(0); setStarted(false); setDone(false); setGuardrail(null);
+    setStatus('Sẵn sàng bắt đầu phiên học chủ động.');
+  };
+
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, isTyping]);
+
+  const callAgent = async (mode, userAnswer = '') => {
+    setIsTyping(true);
+    const nextMessages = userAnswer ? [...messages, { id: Date.now(), sender: 'user', text: userAnswer }] : messages;
+    if (userAnswer) setMessages(nextMessages);
+    setAnswer('');
+    setGuardrail(null);
+    const agentMessageId = Date.now() + 1;
+    setMessages(current => [...current, { id: agentMessageId, sender: 'ai', text: '' }]);
+    try {
+      const history = nextMessages.map(item => ({ role: item.sender === 'ai' ? 'assistant' : 'user', content: item.text }));
+      const response = await fetch(`${API_ORIGIN}/api/feynman/stream`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId.current, lesson_id: selectedLessonId, mode, manual_session: true, loop, n_loop: nLoop, history })
+      });
+      if (!response.ok || !response.body) throw new Error('Không thể kết nối luồng agent');
+      const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = ''; let assistantText = ''; let result = {};
+      const consumeEvent = raw => {
+        const lines = raw.split('\n'); const event = lines.find(line => line.startsWith('event:'))?.slice(6).trim(); const dataLine = lines.find(line => line.startsWith('data:'))?.slice(5).trim();
+        if (!event || !dataLine) return;
+        const data = JSON.parse(dataLine);
+        if (event === 'status') setStatus(data.message);
+        if (event === 'meta') result = data;
+        if (event === 'token') { assistantText += data.text; setMessages(current => current.map(message => message.id === agentMessageId ? { ...message, text: assistantText } : message)); }
+        if (event === 'error') throw new Error(data.message || 'Agent stream failed');
+      };
+      while (true) { const { value, done: streamDone } = await reader.read(); if (streamDone) break; buffer += decoder.decode(value, { stream: true }); const blocks = buffer.split('\n\n'); buffer = blocks.pop() || ''; blocks.forEach(consumeEvent); }
+      setLoop(result.loop ?? loop); setStarted(true); setDone(Boolean(result.done));
+      setStatus(result.done ? 'Agent đã hoàn tất đánh giá retention.' : result.thinking_summary || 'Agent đã chọn câu hỏi tiếp theo.');
+      setGuardrail(result.guardrail || null);
+    } catch (error) { setStatus(`Lỗi kết nối agent: ${error.message}`); }
+    finally { setIsTyping(false); }
+  };
+
+  const start = () => callAgent('MANUAL_START');
+  const submit = () => {
+    const text = answer.trim();
+    if (!text || isTyping || done) return;
+    if (text.endsWith('?') && text.split(/\s+/).length < 25) {
+      setGuardrail({ code: 'COUNTER_QUESTION', message: 'Minh đang cần thầy/cô trả lời câu hỏi hiện tại. Hãy giải thích lại bằng lời của mình trước nhé.' });
+      inputRef.current?.focus();
+      return;
+    }
+    callAgent('SCHEDULED', text);
+  };
+
+  if (panelMode === 'minimized') return <button className="student-card-minimized" onClick={() => setPanelMode('compact')}><div className="bot-face">◕‿◕</div><div className="minimized-text"><strong>Minh · Học sinh AI</strong><span>{started ? `Đang học ${selectedLessonId}` : 'Sẵn sàng bắt đầu'}</span></div><span className="expand-icon">↗</span></button>;
+  return <aside className={`student-card agent-chat-card ${panelMode === 'expanded' ? 'panel-expanded' : ''}`}>
+    <div className="student-top"><span className="eyebrow">FEYNMAN REACT AGENT</span><div className="agent-window-controls"><span className="student-badge">MANUAL SESSION</span><button onClick={() => setPanelMode(panelMode === 'expanded' ? 'compact' : 'expanded')} aria-label="Phóng to hoặc thu nhỏ chatbot">{panelMode === 'expanded' ? '↙' : '↗'}</button><button onClick={() => setPanelMode('minimized')} aria-label="Thu nhỏ chatbot">−</button></div></div>
+    <div className="bot"><div className="bot-face">◕‿◕</div><div><h3>Minh, học sinh của bạn</h3><p>{selectedLecture.title} · lượt {loop}/{nLoop}</p></div></div>
+    {!started && <div className="agent-setup"><div className="agent-intro"><span>1 · Chọn bài</span><span>2 · Tự giải thích</span><span>3 · Nhận đánh giá</span></div><strong>Hôm nay thầy/cô muốn Minh hỏi về bài nào?</strong><p>Minh sẽ đọc từng đoạn nhỏ, hỏi một ý tại một thời điểm và chỉ chuyển tiếp khi phần hiện tại đã đủ chắc.</p><div className="lesson-mcq">{lectures.map(item => <button key={item.id} className={selectedLessonId === item.id ? 'selected' : ''} onClick={() => resetSession(item.id)}>{item.id.replace('DAY ', 'Bài ')}</button>)}</div><label className="loop-choice">Số lượt đối thoại <select value={nLoop} onChange={event => setNLoop(Number(event.target.value))}><option value="3">3 lượt</option><option value="5">5 lượt</option><option value="7">7 lượt</option></select></label><button className="send-button" onClick={start} disabled={isTyping}>Bắt đầu phiên {selectedLessonId} →</button></div>}
+    {started && <div className="chat-messages">{messages.map(msg => <div key={msg.id} className={`chat-message-row ${msg.sender === 'user' ? 'user' : ''}`}>{msg.sender === 'ai' && <div className="chat-avatar">◕‿◕</div>}<div className={`bubble ${msg.sender === 'user' ? 'user' : ''}`}>{msg.text}</div></div>)}{isTyping && <div className="chat-message-row"><div className="chat-avatar">◕‿◕</div><div className="bubble typing-indicator"><span /><span /><span /></div></div>}<div ref={messagesEndRef} /></div>}
+    {started && guardrail && <div className="guardrail-card" role="alert"><strong>Giữ đúng nhịp học</strong><p>{guardrail.message}</p><button onClick={() => { setGuardrail(null); inputRef.current?.focus(); }}>Trả lời lại câu hỏi ↑</button></div>}
+    {started && !done && <><label className="answer-label">Trả lời đúng câu hỏi của Minh bằng cách giải thích và ví dụ</label><textarea ref={inputRef} className="answer" value={answer} onChange={event => { setAnswer(event.target.value); if (guardrail) setGuardrail(null); }} placeholder="Ví dụ: Khái niệm này hoạt động như… vì…" onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submit(); } }} /><button className="send-button" onClick={submit} disabled={!answer.trim() || isTyping}>Gửi để Minh đánh giá →</button></>}
+    {done && <button className="send-button" onClick={() => resetSession(selectedLessonId)}>Phiên học mới ↻</button>}
+    <div className="review-note"><span className="calendar">REACT</span><div><strong>{status}</strong><p>Manual session bỏ qua giờ nhắc, nhưng vẫn giữ checkpoint và N_LOOP.</p></div></div>
+  </aside>;
 }
 
 function LearningView({ activeTopic, setActiveTopic, graph, onNodeClick, recallEnabled, setRecallEnabled }) {
