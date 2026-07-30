@@ -35,7 +35,7 @@
   text-align: left;
 }
 
-.sidebar-brand span {
+.sidebar-brand .brand-highlight {
   color: var(--green);
 }
 
@@ -161,6 +161,7 @@
     opacity: 0;
     transform: translateX(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -299,7 +300,7 @@
   padding: 0;
   display: inline-flex;
   align-items: center;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
   outline: none;
 }
 
@@ -320,7 +321,7 @@
   background-color: #fff;
   border-radius: 50%;
   transition: transform 0.2s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   z-index: 2;
 }
 
@@ -440,7 +441,8 @@
 }
 
 .node-caption {
-  color: #3b4c41 !important; /* Higher contrast text */
+  color: #3b4c41 !important;
+  /* Higher contrast text */
 }
 
 .node-eyebrow {
@@ -451,7 +453,8 @@
 
 /* Core node high-contrast text overrides */
 .core .node-eyebrow {
-  color: #b9f74c !important; /* Soft lime green, highly visible */
+  color: #b9f74c !important;
+  /* Soft lime green, highly visible */
   font-weight: 800 !important;
   font-size: 12.5px !important;
 }
@@ -461,7 +464,8 @@
 }
 
 .core .node-caption {
-  color: #e2f3df !important; /* Soft light green-white, highly readable */
+  color: #e2f3df !important;
+  /* Soft light green-white, highly readable */
   opacity: 0.95 !important;
   font-size: 14.5px !important;
   line-height: 1.5 !important;
@@ -579,7 +583,8 @@
   box-shadow: 0 1px 2px rgba(23, 107, 65, 0.02);
 }
 
-.info-icon, .toggle-icon {
+.info-icon,
+.toggle-icon {
   font-size: 13px;
   margin-right: 2px;
 }
@@ -629,7 +634,7 @@
   border-radius: 50%;
   background-color: #ffffff;
   transition: transform 0.2s;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 .toggle-group .switch.on .slider {
@@ -698,12 +703,15 @@
   .app-layout {
     grid-template-columns: 1fr;
   }
+
   .app-sidebar {
     display: none;
   }
+
   .learning-workspace {
     grid-template-columns: 1fr;
   }
+
   .day-picker-panel {
     display: none;
   }
@@ -711,4 +719,58 @@
 
 .graph-stage {
   transform-origin: 0 0 !important;
+}
+
+#learning .student-card {
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+#learning .agent-chat-card .agent-setup {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
+  max-height: calc(var(--panel-height, 533px) - 130px) !important;
+  gap: 10px !important;
+}
+
+#learning .agent-chat-card .chat-messages {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
+  max-height: calc(var(--panel-height, 533px) - 240px) !important;
+}
+
+/* Force custom scrollbars to be always visible and green-toned inside the chatbot */
+#learning .student-card,
+#learning .student-card * {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(23, 107, 65, 0.4) rgba(0, 0, 0, 0.05) !important;
+}
+
+#learning .student-card::-webkit-scrollbar,
+#learning .student-card *::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+  display: block !important;
+}
+
+#learning .student-card::-webkit-scrollbar-track,
+#learning .student-card *::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border-radius: 99px !important;
+}
+
+#learning .student-card::-webkit-scrollbar-thumb,
+#learning .student-card *::-webkit-scrollbar-thumb {
+  background: rgba(23, 107, 65, 0.35) !important;
+  border-radius: 99px !important;
+}
+
+#learning .student-card::-webkit-scrollbar-thumb:hover,
+#learning .student-card *::-webkit-scrollbar-thumb:hover {
+  background: rgba(23, 107, 65, 0.55) !important;
 }

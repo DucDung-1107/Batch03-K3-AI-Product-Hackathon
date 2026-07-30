@@ -49,7 +49,7 @@
 #learning .quality-incorrect{background:#fff0ee;border-color:#efc1ba;color:#a14c41}
 
 /* A softer little mascot and a deliberately discoverable bottom-left resize grip. */
-#learning .agent-chat-card{width:var(--panel-width,300px);height:var(--panel-height,533px);min-width:280px;min-height:360px;max-width:calc(100vw - 48px);max-height:calc(100vh - 120px);overflow:visible}
+#learning .agent-chat-card{width:var(--panel-width,300px);height:var(--panel-height,533px);min-width:300px;min-height:533px;max-width:calc(100vw - 48px);max-height:calc(100vh - 120px);overflow:visible}
 #learning .student-card .agent-setup{display:flex;flex-direction:column;flex:1;overflow-y:auto;min-height:0;gap:10px}
 #learning .agent-chat-card .bot-face,#learning .agent-chat-card .chat-avatar{position:relative;color:transparent;font-size:0;background:linear-gradient(145deg,#c9ff62,#9fe637);border:2px solid #fff;box-shadow:0 5px 12px #6d9e2c38}
 #learning .agent-chat-card .bot-face{border-radius:16px 16px 13px 13px}

@@ -47,11 +47,12 @@ function Sidebar({ view, setView, onMouseEnterHocTap, onMouseLeaveHocTap }) {
   return (
     <aside className="app-sidebar">
       <button className="sidebar-brand" onClick={() => setView('learning')}>
-        <span className="avatar" style={{ display: 'grid', placeItems: 'center', pointerEvents: 'none', width: '32px', height: '32px', fontSize: '15px' }}>✦</span>Veu<span>Ron</span>
+        <span className="avatar" style={{ display: 'grid', placeItems: 'center', pointerEvents: 'none', width: '32px', height: '32px', fontSize: '15px' }}>✦</span>
+        <span>Veu<span className="brand-highlight">Ron</span></span>
       </button>
       <nav className="sidebar-nav">
-        <button 
-          className={view === 'learning' ? 'active' : ''} 
+        <button
+          className={view === 'learning' ? 'active' : ''}
           onClick={() => setView('learning')}
           onMouseEnter={onMouseEnterHocTap}
           onMouseLeave={onMouseLeaveHocTap}
@@ -111,8 +112,8 @@ function Dashboard({ view, graph, recallEnabled, setRecallEnabled, viewport, zoo
             {/* Nhóm Filter/Toggle */}
             <div className="tool-group toggle-group">
               <span className="toggle-label">Trả lời câu hỏi:</span>
-              <button 
-                className={`switch ${recallEnabled ? 'on' : 'off'}`} 
+              <button
+                className={`switch ${recallEnabled ? 'on' : 'off'}`}
                 onClick={() => setRecallEnabled(!recallEnabled)}
                 aria-label="Bật tắt yêu cầu trả lời trước khi mở nhánh mới"
               >
@@ -127,8 +128,7 @@ function Dashboard({ view, graph, recallEnabled, setRecallEnabled, viewport, zoo
               <span className="zoom-text">{Math.round((viewport?.scale || 1) * 100)}%</span>
               <button className="tool-btn" onClick={() => zoom(0.1)} title="Phóng to" aria-label="Phóng to">+</button>
               <div className="tool-divider" />
-              <button className="tool-btn fit-view-btn" onClick={fitView} title="Căn giữa & thu vừa màn hình" aria-label="Căn chỉnh vừa màn hình" style={{ fontSize: '11px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>[ ]</button>
-              <button className="tool-btn reset-btn" onClick={reset} title="Khôi phục vị trí mặc định" aria-label="Đặt lại graph">↺</button>
+              <button className="tool-btn reset-btn" onClick={reset} title="Đặt lại Mindmap như ban đầu" aria-label="Đặt lại graph">↺</button>
             </div>
           </div>
         )}
@@ -167,17 +167,17 @@ function RecallModal({ node, step, onClose, onUnlock }) {
         <div className="prompt-step">RECALL PROMPT / 0{step}</div>
         <h2>{node.question}</h2>
         <p>Đừng mở tài liệu vội. Hãy tự gọi lại điều bạn nhớ, viết vài ý ngắn trước, rồi Veuron mới mở nhánh tiếp theo.</p>
-        <textarea 
-          value={answer} 
-          onChange={e => setAnswer(e.target.value)} 
-          placeholder="Viết điều bạn nhớ được…" 
-          autoFocus 
+        <textarea
+          value={answer}
+          onChange={e => setAnswer(e.target.value)}
+          placeholder="Viết điều bạn nhớ được…"
+          autoFocus
           onKeyDown={e => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
               submit();
             }
-          }} 
+          }}
         />
         <div className="modal-actions">
           <button className="button secondary" onClick={onClose}>Để sau</button>
@@ -232,7 +232,7 @@ const computeHorizontalLayout = (nodes, rootId) => {
   const layoutNode = (node, startY) => {
     const children = childrenMap[node.id] || [];
     const selfHeight = nodeHeight(node);
-    
+
     if (children.length === 0) {
       nodeYMap[node.id] = startY + (subtreeHeights[node.id] - selfHeight) / 2;
     } else {
@@ -296,9 +296,14 @@ function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled, v
     panelSizeRef.current = panelSize;
   }, [nodes, graph, localPositions, panelMode, panelSize]);
 
-  // Reset all dragged offsets back to default computed layout when reset is clicked
+  // Reset all dragged offsets and return viewport back to initial 50% fit on reset
   useEffect(() => {
-    setLocalPositions({});
+    if (resetTrigger > 0) {
+      setLocalPositions({});
+      requestAnimationFrame(() => {
+        autoFit(0.5);
+      });
+    }
   }, [resetTrigger]);
 
   const autoFit = (forcedScale) => {
@@ -339,7 +344,7 @@ function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled, v
 
     const scaleX = (canvasWidth - paddingLeft - paddingRight) / graphWidth;
     const scaleY = (canvasHeight - paddingTop - paddingBottom) / graphHeight;
-    
+
     let fitScale = (forcedScale !== null && forcedScale !== undefined)
       ? forcedScale
       : Math.min(scaleX, scaleY);
@@ -354,15 +359,10 @@ function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled, v
     setViewport({ x: viewportX, y: viewportY, scale: fitScale });
   };
 
-  const lastRootIdRef = useRef(null);
-
-  // Run autoFit on load and when fitViewTrigger changes (with requestAnimationFrame to ensure correct client measurements)
+  // Run autoFit on day/rootId changes and when fitViewTrigger changes (with requestAnimationFrame to ensure correct client measurements)
   useEffect(() => {
     const handle = requestAnimationFrame(() => {
-      const isNewGraph = graph?.rootId !== lastRootIdRef.current;
-      lastRootIdRef.current = graph?.rootId;
-      const forceScale = isNewGraph ? 0.5 : null;
-      autoFit(forceScale);
+      autoFit(0.5);
     });
     return () => cancelAnimationFrame(handle);
   }, [graph?.rootId, fitViewTrigger]);
@@ -373,7 +373,7 @@ function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled, v
     if (!canvas) return;
     const observer = new ResizeObserver(() => {
       requestAnimationFrame(() => {
-        autoFit();
+        autoFit(0.5);
       });
     });
     observer.observe(canvas);
@@ -454,8 +454,8 @@ function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled, v
   };
   const rootNode = nodes.find(n => n.id === graph?.rootId);
   const rootPos = rootNode ? positionOf(rootNode) : null;
-  const orbX = rootPos ? rootPos.x + rootPos.width / 2 : 185;
-  const orbY = rootPos ? rootPos.y + rootPos.height / 2 : 306;
+  const orbX = rootPos && typeof rootPos.width === 'number' ? rootPos.x + rootPos.width / 2 : 185;
+  const orbY = rootPos && typeof rootPos.height === 'number' ? rootPos.y + rootPos.height / 2 : 306;
   return <div className="map-card map-card-full"><div className="map-header"><div><div className="eyebrow">{topic.id} / NEURAL MAP</div><h2>Kéo node, phóng to và tự mở rộng ý</h2></div><div className="map-header-right"><div className="progress">{nodes.length} / {graph?.totalNodes || nodes.length} node hiện</div><div className="recall-toggle-row"><span className="toggle-label">BẮT BUỘC RECALL</span><button className={`switch ${recallEnabled ? 'on' : 'off'}`} onClick={() => setRecallEnabled(!recallEnabled)} aria-label="Bật tắt yêu cầu trả lời trước khi mở nhánh mới"><span className="slider" /><span className="switch-text">{recallEnabled ? 'ON' : 'OFF'}</span></button></div><div className="graph-controls"><button onClick={() => zoom(-0.1)} aria-label="Thu nhỏ">−</button><span>{Math.round(viewport.scale * 100)}%</span><button onClick={() => zoom(0.1)} aria-label="Phóng to">+</button><button onClick={reset} aria-label="Đặt lại graph">↺</button></div></div></div><div ref={canvasRef} className="map-canvas graph-canvas graph-canvas-full" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag}><div className="graph-stage" style={{ transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.scale})` }}><svg className="graph-edges" viewBox="0 0 1100 620" aria-hidden="true">{edges.map(edge => { const source = nodeMap[edge.source]; const target = nodeMap[edge.target]; return source && target ? <path key={`${edge.source}-${edge.target}`} className="edge edge-live" d={pathFor(source, target)} /> : null; })}<circle className="edge-orb" cx={orbX} cy={orbY} r="5" /></svg>{nodes.map((node, index) => { const position = positionOf(node); const isLeaf = node.isLeaf ?? !node.hasChildren; return <button key={node.id} className={`graph-node ${node.id === graph.rootId ? 'core' : `branch branch-${index % 3 + 1}`} ${isLeaf ? 'leaf' : 'expandable'} ${drag.current?.nodeId === node.id ? 'dragging' : ''}`} style={{ left: position.x, top: position.y, width: position.width, minHeight: position.height, borderLeft: node.id === graph.rootId ? undefined : '4px solid ' + ['#4ade80', '#3b82f6', '#ec4899', '#f59e0b', '#a855f7', '#14b8a6'][index % 6] }} onPointerDown={event => onNodePointerDown(event, node)} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } onNodeClick(node); }}><span className="node-eyebrow">{node.eyebrow}</span><span className="node-title">{node.label}</span><span className="node-caption">{node.caption}</span><span className="node-pulse" /></button>; })}</div></div></div>;
 }
 
@@ -650,13 +650,36 @@ function RecallPartner({ lecture, setActiveTopic, panelMode, setPanelMode, panel
   const resizePanel = event => {
     const start = resizeRef.current;
     if (!start) return;
-    setPanelSize({ width: Math.min(560, Math.max(280, start.width - (event.clientX - start.x))), height: Math.min(760, Math.max(360, start.height - (event.clientY - start.y))) });
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
+    const changeX = -deltaX;
+    const changeY = -deltaY;
+    let scale = 1;
+    if (Math.abs(changeX) / start.width > Math.abs(changeY) / start.height) {
+      scale = (start.width + changeX) / start.width;
+    } else {
+      scale = (start.height + changeY) / start.height;
+    }
+    let newWidth = Math.round(start.width * scale);
+    let newHeight = Math.round(start.height * scale);
+    const ratio = 300 / 533;
+    const maxScreenHeight = window.innerHeight - 120;
+    const limitHeight = Math.min(760, maxScreenHeight);
+    if (newHeight > limitHeight) {
+      newHeight = limitHeight;
+      newWidth = Math.round(limitHeight * ratio);
+    }
+    if (newWidth < 300 || newHeight < 533) {
+      newWidth = 300;
+      newHeight = 533;
+    }
+    setPanelSize({ width: newWidth, height: newHeight });
   };
   const stopResize = () => { resizeRef.current = null; };
 
   return <aside className={`student-card agent-chat-card ${panelMode === 'expanded' ? 'panel-expanded' : ''}`} style={{ '--panel-width': `${panelSize.width}px`, '--panel-height': `${panelSize.height}px` }} onPointerMove={resizePanel} onPointerUp={stopResize} onPointerCancel={stopResize}>
     <div className="resize-handle" onPointerDown={startResize} aria-label="Kéo để đổi kích thước chatbot" title="Kéo để đổi kích thước" />
-    <div className="student-top"><span className="eyebrow">FEYNMAN REACT AGENT</span><div className="agent-window-controls"><span className="student-badge">MANUAL SESSION</span><button onClick={() => setPanelMode(panelMode === 'expanded' ? 'compact' : 'expanded')} aria-label="Phóng to hoặc thu nhỏ chatbot">{panelMode === 'expanded' ? '↙' : '↗'}</button><button onClick={() => setPanelMode('minimized')} aria-label="Thu nhỏ chatbot">−</button></div></div>
+    <div className="student-top"><span className="eyebrow">FEYNMAN REACT AGENT</span><div className="agent-window-controls"><span className="student-badge">MANUAL SESSION</span><button onClick={() => setPanelMode('minimized')} aria-label="Thu nhỏ chatbot">−</button></div></div>
     <div className="bot">
       <div className="bot-face" style={{ background: 'none', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <MascotAvatar />
@@ -668,8 +691,8 @@ function RecallPartner({ lecture, setActiveTopic, panelMode, setPanelMode, panel
             {selectedLecture.title} · {loop}/{nLoop}
           </p>
           {started && (
-            <button 
-              onClick={() => resetSession(selectedLessonId)} 
+            <button
+              onClick={() => resetSession(selectedLessonId)}
               style={{
                 background: 'none',
                 border: 'none',
@@ -709,11 +732,11 @@ function LearningView({ activeTopic, setActiveTopic, graph, onNodeClick, recallE
   return (
     <div className="learning-workspace">
       <main id="learning" className="mindmap-container">
-        <MindMap 
-          topic={displayTopic} 
-          graph={graph} 
-          onNodeClick={onNodeClick} 
-          recallEnabled={recallEnabled} 
+        <MindMap
+          topic={displayTopic}
+          graph={graph}
+          onNodeClick={onNodeClick}
+          recallEnabled={recallEnabled}
           setRecallEnabled={setRecallEnabled}
           viewport={viewport}
           setViewport={setViewport}
@@ -724,9 +747,9 @@ function LearningView({ activeTopic, setActiveTopic, graph, onNodeClick, recallE
           panelMode={panelMode}
           panelSize={panelSize}
         />
-        <RecallPartner 
-          lecture={currentLecture} 
-          setActiveTopic={setActiveTopic} 
+        <RecallPartner
+          lecture={currentLecture}
+          setActiveTopic={setActiveTopic}
           panelMode={panelMode}
           setPanelMode={setPanelMode}
           panelSize={panelSize}
@@ -826,7 +849,7 @@ function App() {
       })
       .then(setGraph)
       .catch(() => setGraph({ nodes: [], edges: [], totalNodes: 0, rootId: null }));
-  }, [activeTopic]);
+  }, [activeTopic, resetTrigger]);
 
   const openNode = async node => {
     if (node.hasChildren || node.childrenCount > 0) {
@@ -857,37 +880,37 @@ function App() {
     setSelectedNode(null);
   };
 
-  const moveLecture = (index, direction) => setOrderedLectures(items => { const next = [...items]; const target = index + direction; if (target < 0 || target >= next.length) return items; [next[index], next[target]] = [next[target], next[index]]; return next; });
+  const moveLecture = (index, direction) => setOrderedLectures(items => { const next = [...items]; const target = index + direction; if (target < 0 || target >= next.length) return items;[next[index], next[target]] = [next[target], next[index]]; return next; });
 
   const page = view === 'library'
     ? <LibraryView orderedLectures={orderedLectures} moveLecture={moveLecture} selectedId={selectedLectureId} setSelectedId={setSelectedLectureId} />
     : view === 'review'
       ? <ReviewView orderedLectures={orderedLectures} />
-      : <LearningView 
-          activeTopic={activeTopic} 
-          setActiveTopic={setActiveTopic} 
-          graph={graph} 
-          onNodeClick={openNode} 
-          recallEnabled={recallEnabled} 
-          setRecallEnabled={setRecallEnabled}
-          viewport={viewport}
-          setViewport={setViewport}
-          zoom={zoom}
-          reset={reset}
-          resetTrigger={resetTrigger}
-          fitViewTrigger={fitViewTrigger}
-        />;
+      : <LearningView
+        activeTopic={activeTopic}
+        setActiveTopic={setActiveTopic}
+        graph={graph}
+        onNodeClick={openNode}
+        recallEnabled={recallEnabled}
+        setRecallEnabled={setRecallEnabled}
+        viewport={viewport}
+        setViewport={setViewport}
+        zoom={zoom}
+        reset={reset}
+        resetTrigger={resetTrigger}
+        fitViewTrigger={fitViewTrigger}
+      />;
 
   return (
     <div className="app-layout">
-      <Sidebar 
-        view={view} 
-        setView={setView} 
-        onMouseEnterHocTap={handleMouseEnterHocTap} 
-        onMouseLeaveHocTap={handleMouseLeaveHocTap} 
+      <Sidebar
+        view={view}
+        setView={setView}
+        onMouseEnterHocTap={handleMouseEnterHocTap}
+        onMouseLeaveHocTap={handleMouseLeaveHocTap}
       />
       {showDayPicker && (
-        <aside 
+        <aside
           className="day-picker-panel flyout"
           onMouseEnter={handleMouseEnterPanel}
           onMouseLeave={handleMouseLeavePanel}
@@ -896,9 +919,9 @@ function App() {
           <div className="day-picker-list">
 
             {topics.map(topic => (
-              <button 
-                key={topic.id} 
-                className={`day-picker-item ${activeTopic?.id === topic.id ? 'active' : ''}`} 
+              <button
+                key={topic.id}
+                className={`day-picker-item ${activeTopic?.id === topic.id ? 'active' : ''}`}
                 onClick={() => { setActiveTopic(topic); setShowDayPicker(false); }}
               >
                 <span className="day-badge">{topic.id.replace('DAY ', 'D')}</span>
@@ -912,7 +935,7 @@ function App() {
         </aside>
       )}
       <div className="main-content">
-        <Dashboard 
+        <Dashboard
           view={view}
           graph={graph}
           recallEnabled={recallEnabled}
@@ -928,7 +951,7 @@ function App() {
         </div>
       </div>
       <RecallModal node={selectedNode} step={selectedNode ? selectedNode.eyebrow : '01'} onClose={() => setSelectedNode(null)} onUnlock={submitRecall} />
-      
+
       <nav className="bottom-nav">
         <button className={view === 'learning' ? 'active' : ''} onClick={() => setView('learning')}>
           <span className="nav-icon"> </span>
