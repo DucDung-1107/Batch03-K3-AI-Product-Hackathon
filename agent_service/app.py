@@ -235,3 +235,32 @@ def expand_graph(body: dict[str, str]) -> dict[str, Any]:
     graph = flatten_graph(json.loads(GRAPH_PATH.read_text(encoding="utf-8")))
     children = [node for node in graph["nodes"] if node["parentId"] == node_id]
     return {"nodeId": node_id, "accepted": True, "children": children, "edges": [edge for edge in graph["edges"] if edge["source"] == node_id]}
+
+
+def load_day_graph(day_id: str) -> dict[str, Any]:
+    if day_id not in {f"day{index}" for index in range(1, 6)}:
+        raise HTTPException(status_code=404, detail="Không tìm thấy sơ đồ bài học.")
+    path = ROOT / "src" / "graph" / f"{day_id}.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Không tìm thấy sơ đồ bài học.")
+    return flatten_graph(json.loads(path.read_text(encoding="utf-8")))
+
+
+@app.get("/api/graphs/{day_id}")
+def graph_for_day(day_id: str) -> dict[str, Any]:
+    graph = load_day_graph(day_id)
+    root_id = graph["rootId"]
+    visible = [node for node in graph["nodes"] if node["id"] == root_id or node["parentId"] == root_id]
+    visible_ids = {node["id"] for node in visible}
+    return {**graph, "id": day_id, "totalNodes": len(graph["nodes"]), "nodes": visible, "edges": [edge for edge in graph["edges"] if edge["source"] in visible_ids and edge["target"] in visible_ids]}
+
+
+@app.post("/api/graphs/{day_id}/expand")
+def expand_graph_for_day(day_id: str, body: dict[str, str]) -> dict[str, Any]:
+    answer = body.get("answer", "").strip()
+    node_id = body.get("nodeId")
+    if not answer or not node_id:
+        raise HTTPException(status_code=400, detail="Cần nodeId và câu trả lời.")
+    graph = load_day_graph(day_id)
+    children = [node for node in graph["nodes"] if node["parentId"] == node_id]
+    return {"nodeId": node_id, "accepted": True, "children": children, "edges": [edge for edge in graph["edges"] if edge["source"] == node_id]}

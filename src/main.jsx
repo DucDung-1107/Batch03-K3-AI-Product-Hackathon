@@ -21,6 +21,7 @@ const lectures = [
 const topics = lectures.map((lecture, index) => ({ id: lecture.id, tag: `${String(index + 1).padStart(2, '0')} / ${lecture.tag}`, title: lecture.title, description: lecture.summary, node: lecture.node }));
 const spacing = [1, 3, 7, 14, 30];
 const API_ORIGIN = typeof window === 'undefined' ? 'http://127.0.0.1:8000' : `${window.location.protocol}//${window.location.hostname}:8000`;
+const GRAPH_API_ORIGIN = API_ORIGIN;
 const formatDate = date => new Intl.DateTimeFormat('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' }).format(date);
 const addDays = (date, days) => { const next = new Date(date); next.setDate(next.getDate() + days); return next; };
 
@@ -297,7 +298,10 @@ function RecallPartner({ lecture }) {
   const [isTyping, setIsTyping] = useState(false);
   const [status, setStatus] = useState('Chọn bài giảng, rồi bắt đầu phiên Feynman chủ động.');
   const [guardrail, setGuardrail] = useState(null);
+  const [answerQuality, setAnswerQuality] = useState(null);
   const [panelMode, setPanelMode] = useState('compact');
+  const [panelSize, setPanelSize] = useState({ width: 300, height: 533 });
+  const resizeRef = useRef(null);
   const sessionId = useRef(`manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -305,7 +309,7 @@ function RecallPartner({ lecture }) {
 
   const resetSession = (lessonId = selectedLessonId) => {
     sessionId.current = `manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    setSelectedLessonId(lessonId); setMessages([]); setAnswer(''); setLoop(0); setStarted(false); setDone(false); setGuardrail(null);
+    setSelectedLessonId(lessonId); setMessages([]); setAnswer(''); setLoop(0); setStarted(false); setDone(false); setGuardrail(null); setAnswerQuality(null);
     setStatus('Sẵn sàng bắt đầu phiên học chủ động.');
   };
 
@@ -332,7 +336,7 @@ function RecallPartner({ lecture }) {
         if (!event || !dataLine) return;
         const data = JSON.parse(dataLine);
         if (event === 'status') setStatus(data.message);
-        if (event === 'meta') result = data;
+        if (event === 'meta') { result = data; setAnswerQuality(data.answer_quality || null); }
         if (event === 'token') { assistantText += data.text; setMessages(current => current.map(message => message.id === agentMessageId ? { ...message, text: assistantText } : message)); }
         if (event === 'error') throw new Error(data.message || 'Agent stream failed');
       };
@@ -357,13 +361,28 @@ function RecallPartner({ lecture }) {
   };
 
   if (panelMode === 'minimized') return <button className="student-card-minimized" onClick={() => setPanelMode('compact')}><div className="bot-face">◕‿◕</div><div className="minimized-text"><strong>Minh · Học sinh AI</strong><span>{started ? `Đang học ${selectedLessonId}` : 'Sẵn sàng bắt đầu'}</span></div><span className="expand-icon">↗</span></button>;
-  return <aside className={`student-card agent-chat-card ${panelMode === 'expanded' ? 'panel-expanded' : ''}`}>
+  const startResize = event => {
+    event.preventDefault();
+    event.stopPropagation();
+    resizeRef.current = { x: event.clientX, y: event.clientY, ...panelSize };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+  const resizePanel = event => {
+    const start = resizeRef.current;
+    if (!start) return;
+    setPanelSize({ width: Math.min(560, Math.max(280, start.width - (event.clientX - start.x))), height: Math.min(760, Math.max(360, start.height - (event.clientY - start.y))) });
+  };
+  const stopResize = () => { resizeRef.current = null; };
+
+  return <aside className={`student-card agent-chat-card ${panelMode === 'expanded' ? 'panel-expanded' : ''}`} style={{ '--panel-width': `${panelSize.width}px`, '--panel-height': `${panelSize.height}px` }} onPointerMove={resizePanel} onPointerUp={stopResize} onPointerCancel={stopResize}>
+    <div className="resize-handle" onPointerDown={startResize} aria-label="Kéo để đổi kích thước chatbot" title="Kéo để đổi kích thước" />
     <div className="student-top"><span className="eyebrow">FEYNMAN REACT AGENT</span><div className="agent-window-controls"><span className="student-badge">MANUAL SESSION</span><button onClick={() => setPanelMode(panelMode === 'expanded' ? 'compact' : 'expanded')} aria-label="Phóng to hoặc thu nhỏ chatbot">{panelMode === 'expanded' ? '↙' : '↗'}</button><button onClick={() => setPanelMode('minimized')} aria-label="Thu nhỏ chatbot">−</button></div></div>
     <div className="bot"><div className="bot-face">◕‿◕</div><div><h3>Minh, học sinh của bạn</h3><p>{selectedLecture.title} · lượt {loop}/{nLoop}</p></div></div>
     {!started && <div className="agent-setup"><div className="agent-intro"><span>1 · Chọn bài</span><span>2 · Tự giải thích</span><span>3 · Nhận đánh giá</span></div><strong>Hôm nay thầy/cô muốn Minh hỏi về bài nào?</strong><p>Minh sẽ đọc từng đoạn nhỏ, hỏi một ý tại một thời điểm và chỉ chuyển tiếp khi phần hiện tại đã đủ chắc.</p><div className="lesson-mcq">{lectures.map(item => <button key={item.id} className={selectedLessonId === item.id ? 'selected' : ''} onClick={() => resetSession(item.id)}>{item.id.replace('DAY ', 'Bài ')}</button>)}</div><label className="loop-choice">Số lượt đối thoại <select value={nLoop} onChange={event => setNLoop(Number(event.target.value))}><option value="3">3 lượt</option><option value="5">5 lượt</option><option value="7">7 lượt</option></select></label><button className="send-button" onClick={start} disabled={isTyping}>Bắt đầu phiên {selectedLessonId} →</button></div>}
     {started && <div className="chat-messages">{messages.map(msg => <div key={msg.id} className={`chat-message-row ${msg.sender === 'user' ? 'user' : ''}`}>{msg.sender === 'ai' && <div className="chat-avatar">◕‿◕</div>}<div className={`bubble ${msg.sender === 'user' ? 'user' : ''}`}>{msg.text}</div></div>)}{isTyping && <div className="chat-message-row"><div className="chat-avatar">◕‿◕</div><div className="bubble typing-indicator"><span /><span /><span /></div></div>}<div ref={messagesEndRef} /></div>}
     {started && guardrail && <div className="guardrail-card" role="alert"><strong>Giữ đúng nhịp học</strong><p>{guardrail.message}</p><button onClick={() => { setGuardrail(null); inputRef.current?.focus(); }}>Trả lời lại câu hỏi ↑</button></div>}
     {started && !done && <><label className="answer-label">Trả lời đúng câu hỏi của Minh bằng cách giải thích và ví dụ</label><textarea ref={inputRef} className="answer" value={answer} onChange={event => { setAnswer(event.target.value); if (guardrail) setGuardrail(null); }} placeholder="Ví dụ: Khái niệm này hoạt động như… vì…" onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submit(); } }} /><button className="send-button" onClick={submit} disabled={!answer.trim() || isTyping}>Gửi để Minh đánh giá →</button></>}
+    {started && answerQuality && <div className={`quality-chip quality-${answerQuality}`}><span>{answerQuality === 'good' ? '✓' : answerQuality === 'needs_clarification' ? '!' : '·'}</span>{answerQuality === 'good' ? 'Minh đánh giá: Đã hiểu tốt' : answerQuality === 'needs_clarification' ? 'Minh đánh giá: Cần giải thích thêm' : 'Minh chưa đủ căn cứ để đánh giá'}</div>}
     {done && <button className="send-button" onClick={() => resetSession(selectedLessonId)}>Phiên học mới ↻</button>}
     <div className="review-note"><span className="calendar">REACT</span><div><strong>{status}</strong><p>Manual session bỏ qua giờ nhắc, nhưng vẫn giữ checkpoint và N_LOOP.</p></div></div>
   </aside>;
@@ -407,7 +426,7 @@ function App() {
 
   useEffect(() => {
     const dayId = getDayId(activeTopic);
-    fetch(`${API_ORIGIN}/api/graphs/${dayId}`)
+    fetch(`${GRAPH_API_ORIGIN}/api/graphs/${dayId}`)
       .then(response => {
         if (!response.ok) throw new Error(`Graph API ${response.status}`);
         return response.json();
@@ -430,7 +449,7 @@ function App() {
     const targetNode = nodeOverride || selectedNode;
     if (!targetNode) return;
     const dayId = getDayId(activeTopic);
-    const response = await fetch(`${API_ORIGIN}/api/graphs/${dayId}/expand`, {
+    const response = await fetch(`${GRAPH_API_ORIGIN}/api/graphs/${dayId}/expand`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nodeId: targetNode.id, answer })
@@ -454,15 +473,15 @@ function App() {
       
       <nav className="bottom-nav">
         <button className={view === 'learning' ? 'active' : ''} onClick={() => setView('learning')}>
-          <span className="nav-icon">🧠</span>
+          <span className="nav-icon"> </span>
           <span className="nav-label">Học tập</span>
         </button>
         <button className={view === 'review' ? 'active' : ''} onClick={() => setView('review')}>
-          <span className="nav-icon">📅</span>
+          <span className="nav-icon"> </span>
           <span className="nav-label">Lịch ôn</span>
         </button>
         <button className={view === 'library' ? 'active' : ''} onClick={() => setView('library')}>
-          <span className="nav-icon">📚</span>
+          <span className="nav-icon"> </span>
           <span className="nav-label">Thư viện</span>
         </button>
       </nav>

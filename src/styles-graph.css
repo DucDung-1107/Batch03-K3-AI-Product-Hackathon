@@ -42,6 +42,25 @@
 @keyframes typingIndicator{0%,100%{transform:translateY(0);opacity:0.4}50%{transform:translateY(-4px);opacity:1}}
 #learning .student-card .answer{height:80px;min-height:80px;flex:0 0 auto;margin-top:4px;box-sizing:border-box}
 #learning .student-card .review-note{display:none}
+#learning .quality-chip{flex:none;border:1px solid #dce8d8;border-radius:10px;padding:8px 10px;background:#f5faef;color:#426b43;font-size:10px;line-height:1.35}
+#learning .quality-chip span{display:inline-grid;place-items:center;width:16px;height:16px;margin-right:6px;border-radius:50%;background:#c8f478;color:#235b38;font-weight:800}
+#learning .quality-needs_clarification{background:#fff9e8;border-color:#f0dfaa;color:#88651c}
+#learning .quality-needs_clarification span{background:#ffe092;color:#795915}
+#learning .quality-incorrect{background:#fff0ee;border-color:#efc1ba;color:#a14c41}
+
+/* A softer little mascot and a deliberately discoverable bottom-left resize grip. */
+#learning .agent-chat-card{width:var(--panel-width,300px);height:var(--panel-height,533px);min-width:280px;min-height:360px;overflow:visible}
+#learning .agent-chat-card .bot-face,#learning .agent-chat-card .chat-avatar{position:relative;color:transparent;font-size:0;background:linear-gradient(145deg,#c9ff62,#9fe637);border:2px solid #fff;box-shadow:0 5px 12px #6d9e2c38}
+#learning .agent-chat-card .bot-face{border-radius:16px 16px 13px 13px}
+#learning .agent-chat-card .bot-face:before,#learning .agent-chat-card .bot-face:after{content:"";position:absolute;width:7px;height:9px;top:14px;background:#173c29;border-radius:50%}
+#learning .agent-chat-card .bot-face:before{left:11px}.agent-chat-card .bot-face:after{right:11px}
+#learning .agent-chat-card .bot-face .bot-smile{position:absolute;left:50%;bottom:10px;width:17px;height:8px;border-bottom:2px solid #173c29;border-radius:0 0 14px 14px;transform:translateX(-50%)}
+#learning .agent-chat-card .chat-avatar{width:30px;height:30px;border-radius:11px}
+#learning .agent-chat-card .chat-avatar:before,#learning .agent-chat-card .chat-avatar:after{content:"";position:absolute;width:4px;height:6px;top:9px;background:#173c29;border-radius:50%}
+#learning .agent-chat-card .chat-avatar:before{left:8px}.agent-chat-card .chat-avatar:after{right:8px}
+#learning .resize-handle{position:absolute;z-index:8;left:-1px;top:-1px;width:28px;height:28px;cursor:nwse-resize;touch-action:none}
+#learning .resize-handle:before{content:"";position:absolute;left:5px;top:5px;width:12px;height:12px;background:linear-gradient(135deg,transparent 45%,#176b41 46% 53%,transparent 54%),linear-gradient(135deg,transparent 59%,#176b41 60% 67%,transparent 68%);opacity:.7}
+#learning .resize-handle:hover:before{opacity:1;transform:scale(1.12)}
 
 @media(max-width:800px){
   #learning{height:auto;min-height:calc(100vh - 66px);overflow:visible;padding:0}
@@ -51,6 +70,8 @@
   #learning .map-header>div:first-child{display:none}
   #learning .map-header-right{margin-top:0}
   #learning .student-card{right:16px;bottom:16px;left:16px;width:auto;height:auto;max-height:360px}
+  #learning .agent-chat-card{width:auto;height:auto;min-width:0}
+  #learning .resize-handle{display:none}
   #learning .graph-hint{left:16px;right:16px;bottom:260px;justify-content:center}
 }
 

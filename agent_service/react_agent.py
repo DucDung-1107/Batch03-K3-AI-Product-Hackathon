@@ -74,15 +74,28 @@ def _client() -> Any:
 def _model_action(history: list[dict[str, str]], chunk: str) -> dict[str, str]:
     latest = next((item["content"] for item in reversed(history) if item["role"] == "user"), "")
     current_question = next((item["content"] for item in reversed(history) if item["role"] == "assistant"), "")
+    has_question = latest.strip().endswith("?")
     if not _provider_configured():
-        if "?" in latest or len(latest.split()) < 5:
+        if has_question or len(latest.split()) < 5:
             return {"action": "REDIRECT", "input_status": "COUNTER_QUESTION" if "?" in latest else "TOO_SHORT", "answer_quality": "not_assessable", "topic": "current chunk", "reasoning_summary": "Cần câu trả lời trực tiếp cho câu hỏi hiện tại trước khi tiếp tục."}
         quality = "good" if len(latest.split()) >= 24 and any(token in latest.lower() for token in ("vì", "do", "nên", "ví dụ")) else "needs_clarification"
         return {"action": "ADVANCE" if quality == "good" else "DEEPEN", "input_status": "ON_TOPIC", "answer_quality": quality, "topic": "current chunk", "reasoning_summary": "Fallback đánh giá độ đầy đủ của lời giải thích và ví dụ."}
     try:
         response = _client().chat.completions.create(model=_model_name(), temperature=0.1, messages=[{"role": "system", "content": ACTION_PROMPT}, {"role": "user", "content": f"CURRENT_QUESTION:\n{current_question}\n\nCURRENT_CONTEXT_CHUNK:\n{chunk}\n\nDIALOGUE:\n{json.dumps(history, ensure_ascii=False)}"}], tools=ACTION_TOOL, tool_choice={"type": "function", "function": {"name": "choose_learning_action"}})
         call = response.choices[0].message.tool_calls[0]
-        return json.loads(call.function.arguments)
+        action = json.loads(call.function.arguments)
+        # Some providers return the safe default `not_assessable` even when a
+        # real answer is present. Keep the assessment useful and deterministic
+        # for the learner instead of dropping answer_quality from the payload.
+        if action.get("answer_quality") == "not_assessable" and len(latest.split()) >= 5 and not has_question:
+            action["answer_quality"] = "good" if len(latest.split()) >= 12 else "needs_clarification"
+            action["action"] = "ADVANCE" if action["answer_quality"] == "good" else "DEEPEN"
+            action["input_status"] = "ON_TOPIC"
+        elif action.get("input_status") == "COUNTER_QUESTION" and not has_question and len(latest.split()) >= 5:
+            action["answer_quality"] = "good" if len(latest.split()) >= 12 else "needs_clarification"
+            action["action"] = "ADVANCE" if action["answer_quality"] == "good" else "DEEPEN"
+            action["input_status"] = "ON_TOPIC"
+        return action
     except Exception:
         quality = "good" if len(latest.split()) >= 24 and any(token in latest.lower() for token in ("vì", "do", "nên", "ví dụ")) else "needs_clarification"
         if "?" in latest or len(latest.split()) < 5:
