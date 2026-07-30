@@ -26,6 +26,8 @@ const AGENT_ORIGIN = GRAPH_API_ORIGIN;
 const API_ORIGIN = AGENT_ORIGIN;
 const formatDate = date => new Intl.DateTimeFormat('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' }).format(date);
 const addDays = (date, days) => { const next = new Date(date); next.setDate(next.getDate() + days); return next; };
+const startOfDay = date => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+const isSameCalendarDay = (a, b) => startOfDay(a).getTime() === startOfDay(b).getTime();
 
 const MascotAvatar = () => (
   <svg width="100%" height="100%" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -908,14 +910,35 @@ function ReviewView({ orderedLectures, onStartRecall, completedReviews = [] }) {
 
   const base = new Date('2026-07-28T19:30:00');
   const schedule = orderedLectures.flatMap((lecture, index) => spacing.map((gap, reviewIndex) => ({ lecture, reviewIndex, date: addDays(new Date(lecture.learnedAt || addDays(base, index)), gap) }))).sort((a, b) => a.date - b.date);
-  const nowToday = new Date();
-  const startOfToday = new Date(nowToday.getFullYear(), nowToday.getMonth(), nowToday.getDate());
-  const startOfTomorrow = addDays(startOfToday, 1);
-  const dueToday = schedule.filter(item => item.date >= startOfToday && item.date < startOfTomorrow && !completedReviews.includes(item.lecture.id));
-  const due = dueToday;
-  return <main className="page-main" id="review"><div className="page-heading"><div><div className="eyebrow">REVIEW ENGINE / SPACED RECALL</div><h1>Lịch ôn<br /><em>tự chạy.</em></h1></div></div><section className="review-overview"><div className="next-review"><div className="eyebrow" style={{ fontVariantNumeric: 'tabular-nums' }}>{formatRealtimeDate(now)}</div><h2>{due.length ? `${due.length} lượt recall đang chờ` : 'Bạn đã hoàn thành lịch hôm nay'}</h2><p>{due.length ? `Minh sẽ bắt đầu bằng bài “${due[0].lecture.title}”.` : 'Lịch mới sẽ tự xuất hiện sau bài học tiếp theo.'}</p><button className="button primary" onClick={() => setReminder(value => !value)}>{reminder ? '✓ AI đang nhắc lúc 19:30' : 'Bật AI chủ động nhắc'}</button></div><div className="method-card"><span className="method-icon">↗</span><div><strong>Nhịp ôn tập thông minh</strong><p>Hệ thống nhắc lại 5 lần từ ngày học đầu tiên đến 1, 3, 7, 14 và 30 ngày sau. Mục tiêu là giúp bạn ghi nhớ sâu hơn và củng cố lại nếu chưa chắc.</p><small>Phiên ôn này ưu tiên giữ kiến thức lâu dài, đồng thời tự động đưa bài về phiên gần hơn khi cần.</small></div></div></section><div className="review-section-head"><div><div className="eyebrow">YOUR TIMELINE</div><h2>Dòng thời gian ghi nhớ</h2></div><span>{schedule.length} phiên đã lên lịch</span></div><section className="timeline">{schedule.slice(0, 14).map((item, index) => {
-    const isCompleted = completedReviews.includes(item.lecture.id) || item.date < startOfToday;
-    return <article className={`timeline-item ${item.date >= startOfToday && item.date < startOfTomorrow && !isCompleted ? 'due' : ''} ${isCompleted ? 'completed' : ''}`} key={`${item.lecture.id}-${item.reviewIndex}`}><div className="timeline-date"><strong>{formatDate(item.date)}</strong><span>{isCompleted ? 'ĐÃ ÔN TẬP' : (item.date >= startOfToday && item.date < startOfTomorrow ? 'CẦN ÔN TẬP' : `LẦN ${item.reviewIndex + 1}`)}</span></div><div className="timeline-connector"><i /></div><div className="timeline-content"><span>{item.lecture.id} · {item.lecture.tag}</span><h3>{item.lecture.title}</h3><p>{item.reviewIndex === 0 ? 'Recall nhanh: nói lại ý chính trong 60 giây.' : item.reviewIndex === 1 ? 'Giải thích lại bằng ví dụ của chính bạn.' : 'Kết nối bài này với một bài đã học trước.'}</p></div><button className={`ask-button ${isCompleted ? 'completed' : ''}`} onClick={() => !isCompleted && onStartRecall && onStartRecall(item.lecture)} disabled={isCompleted}>{isCompleted ? 'Đã ôn tập ✓' : 'Minh hỏi →'}</button></article>
+  const startOfToday = startOfDay(now);
+  const due = schedule.filter(item => {
+    if (!isSameCalendarDay(item.date, now)) return false;
+    const isCompleted = completedReviews.includes(item.lecture.id) || startOfDay(item.date) < startOfToday;
+    return !isCompleted;
+  });
+  return <main className="page-main" id="review"><div className="page-heading"><div><div className="eyebrow">REVIEW ENGINE / SPACED RECALL</div><h1>Lịch ôn<br /><em>tự chạy.</em></h1></div></div><section className="review-overview"><div className="next-review"><div className="eyebrow" style={{ fontVariantNumeric: 'tabular-nums' }}>{formatRealtimeDate(now)}</div><h2>{due.length ? `${due.length} lượt recall đang chờ` : 'Bạn đã hoàn thành lịch hôm nay'}</h2><p>{due.length ? `Minh sẽ bắt đầu bằng bài “${due[0].lecture.title}”.` : 'Lịch mới sẽ tự xuất hiện sau bài học tiếp theo.'}</p><button className="button primary" onClick={() => setReminder(value => !value)}>{reminder ? '✓ AI đang nhắc lúc 19:30' : 'Bật AI chủ động nhắc'}</button></div><div className="method-card"><span className="method-icon">↗</span><div><strong>Nhịp ôn tập thông minh</strong><p>Hệ thống nhắc lại 5 lần từ ngày học đầu tiên đến 1, 3, 7, 14 và 30 ngày sau. Mục tiêu là giúp bạn ghi nhớ sâu hơn và củng cố lại nếu chưa chắc.</p><small>Phiên ôn này ưu tiên giữ kiến thức lâu dài, đồng thời tự động đưa bài về phiên gần hơn khi cần.</small></div></div></section><div className="review-section-head"><div><div className="eyebrow">YOUR TIMELINE</div><h2>Dòng thời gian ghi nhớ</h2></div><span>{schedule.length} phiên đã lên lịch</span></div><section className="timeline">{schedule.slice(0, 14).map(item => {
+    const isToday = isSameCalendarDay(item.date, now);
+    const isCompleted = completedReviews.includes(item.lecture.id) || startOfDay(item.date) < startOfToday;
+    const isDue = isToday && !isCompleted;
+    const statusLabel = isCompleted ? 'ĐÃ ÔN TẬP' : (isDue ? 'CẦN ÔN TẬP' : `LẦN ${item.reviewIndex + 1}`);
+    return (
+      <article
+        className={`timeline-item${isToday ? ' today' : ''}${isDue ? ' due' : ''}${isCompleted ? ' completed' : ''}`}
+        key={`${item.lecture.id}-${item.reviewIndex}`}
+      >
+        <div className="timeline-date">
+          <strong>{isToday ? `${formatDate(item.date)}` : formatDate(item.date)}</strong>
+          <span>{statusLabel}</span>
+        </div>
+        <div className="timeline-connector"><i /></div>
+        <div className="timeline-content">
+          <span>{item.lecture.id} · {item.lecture.tag}</span>
+          <h3>{item.lecture.title}</h3>
+          <p>{item.reviewIndex === 0 ? 'Recall nhanh: nói lại ý chính trong 60 giây.' : item.reviewIndex === 1 ? 'Giải thích lại bằng ví dụ của chính bạn.' : 'Kết nối bài này với một bài đã học trước.'}</p>
+        </div>
+        <button className={`ask-button ${isCompleted ? 'completed' : ''}`} onClick={() => !isCompleted && onStartRecall && onStartRecall(item.lecture)} disabled={isCompleted}>{isCompleted ? 'Đã ôn tập ✓' : 'Minh hỏi →'}</button>
+      </article>
+    );
   })}</section><div className="science-note">Lịch này là prototype dựa trên nguyên tắc học ngắt quãng, không phải khuyến nghị y khoa hay bảo đảm cho mọi người học. <a href="https://www.learningscientists.org/blog/2018/7/5-1" target="_blank" rel="noreferrer">Đọc cơ sở thiết kế ↗</a></div></main>;
 }
 

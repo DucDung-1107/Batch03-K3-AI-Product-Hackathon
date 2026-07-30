@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "backend": "node server/index.js",
-    "start": "node server/index.js",
+    "backend": "uvicorn agent_service.app:app --reload --host 127.0.0.1 --port 8787",
+    "backend:graph-only": "node server/index.js",
+    "start": "uvicorn agent_service.app:app --host 127.0.0.1 --port 8787",
     "build": "vite build",
     "preview": "vite preview"
   },
