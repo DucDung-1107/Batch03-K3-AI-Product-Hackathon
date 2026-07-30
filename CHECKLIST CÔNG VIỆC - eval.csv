@@ -1,0 +1,37 @@
+TC,AI Agent hỏi user,user trả lời,Expected( LỜI THOẠI AI AGENT CẦN ĐƯA RA)
+TC01,Hiện tượng Hallucination của LLM do đâu?,"Do mô hình dự đoán xác suất token tiếp theo, không dựa trên sự thật nên tự tin bịa thông tin.","""Chính xác! Tiếp theo, 'Knowledge Cutoff' là gì?"""
+TC01,"Vòng lặp ""Discover"" trong Double Diamond dùng để làm gì?","Để quan sát, phỏng vấn và tìm ra vấn đề cốt lõi thực sự.","""Chuẩn xác! Vậy mức độ giải pháp Rule-based khác Workflow thế nào?"""
+TC01,Bộ nhớ ngắn hạn của Agent có đặc điểm gì?,"Nằm trong context window, rẻ, xử lý nhanh nhưng dễ đầy.","""Đúng rồi! Vậy bộ nhớ dài hạn (Long-term memory) có chức năng gì?"""
+TC01,Lưu ý quan trọng nhất khi dùng Negative Prompting là gì?,Phải đi kèm phương án thay thế tích cực để AI biết nên làm gì.,"""Rất chuẩn! Câu hỏi tiếp: Zero-shot và One-shot prompt khác nhau điểm nào?"""
+,,,
+TC02,Kiến trúc Decoder-only Transformer đọc văn bản thế nào?,Đọc văn bản từ cả hai chiều cùng lúc để hiểu câu.,"""Bạn nhầm sang Encoder rồi. Thử giải thích lại dựa vào cách dự đoán token tiếp theo xem?"""
+TC02,Giai đoạn Define dùng làm gì?,Để phát triển giải pháp và tạo mẫu thử.,"""Đó là giai đoạn Develop rồi. Sau khi có dữ liệu từ Discover, ta cần làm gì để chốt bài toán?"""
+TC02,"Khi AI đưa ra kết quả với độ tự tin thấp (Low confidence), ta nên thiết kế UX Fallback thế nào?",Nên để AI tự động thực thi kết quả đó luôn cho nhanh và ẩn cảnh báo đi.,"""Cách này rất rủi ro đấy. Nếu hệ thống không chắc chắn về kết quả, 
+ta nên yêu cầu người dùng làm gì trước khi hành động được thực thi?"""
+,,,
+,,,
+TC03,Nếu ta ưu tiên Precision (Độ chính xác) cao thì hệ thống sẽ có đặc điểm gì?,"Hệ thống sẽ ít đưa ra gợi ý, nhưng gợi ý nào cũng chắc chắn đúng.","""Đúng rồi, gợi ý sẽ rất chính xác. Nhưng điều này sẽ gây ra hệ quả gì với
+ những trường hợp thực sự cần hỗ trợ mà hệ thống lại bỏ sót (False Negative)?"""
+TC03,"Trường ""Boundary"" (Ranh giới) trong Problem Statement dùng để làm gì?",Dùng để giới hạn những việc AI không được phép tự quyết định.,"""Đúng về mặt định nghĩa! Vậy bạn có thể cho một ví dụ thực tế về
+ một tác vụ cụ thể mà AI không được phép tự quyết định không?"""
+TC03,"Pattern ""Evaluator-Optimizer"" (Đánh giá - Tối ưu) hoạt động dựa trên nguyên lý nào?",Nó liên tục lặp lại việc sinh kết quả rồi tự hiệu chỉnh để tăng chất lượng đầu ra.,"""Chính xác về quy trình vòng lặp! Nhưng để AI biết cách tự đánh giá và hiệu 
+chỉnh cho đúng, ta bắt buộc phải định nghĩa rõ ràng điều gì cho nó từ đầu?"""
+,,,
+,,,
+TC04,"Pattern ""Routing"" (Định tuyến) và ""Parallelization"" (Song song) khác nhau thế nào?","Routing là chia việc ra cho nhiều model chạy cùng lúc, 
+còn Parallelization là phân loại chọn 1 model.","""Có vẻ bạn đang nhớ ngược. Hãy liên tưởng 'Định tuyến' như phân luồng xe đi 
+theo 1 hướng, và 'Song song' là nhiều xe cùng chạy. Bạn thử so sánh lại xem?"""
+TC04,Điểm khác biệt khi chọn áp dụng Automate (Tự động hóa) và Augment (Hỗ trợ) là gì?,"Automate là AI làm việc rủi ro cao để tránh lỗi, còn Augment là AI làm việc nhàm chán.","""Bạn thử xem xét lại nhé. Với các tác vụ có rủi ro cao như pháp lý, 
+ta nên giao AI tự quyết định (Automate) hay chỉ để AI gợi ý và con người kiểm soát (Augment)?"""
+TC04,Khi nào ta nên nâng cấp giải pháp từ Workflow (Quy trình) lên Agent (Tác nhân)?,"Khi các bước quy trình đã cố định rõ ràng nhưng ta muốn 
+chạy tự động 100% không cần người duyệt.","""Bạn đang hiểu sai bản chất của Agent rồi. Nếu quy trình đã cố định thì vẫn 
+chỉ là Workflow. Điểm khác biệt về khả năng tự lập kế hoạch giữa Agent và 
+Workflow là gì?"""
+,,,
+,,,
+TC05,Điểm yếu lớn nhất của mô hình 'Agent' (Tác nhân tự chủ) là gì?,(Lượt 5) Nó không hiểu ngôn ngữ tự nhiên tốt bằng các mô hình khác.,"""Đã qua 5 lượt trao đổi, mình xin tổng kết lại nhé. 
+Điểm yếu lớn nhất của Agent là chi phí vận hành rất cao và 
+dễ rủi ro lỗi cộng dồn qua nhiều bước tự quyết. Tóm lại: Agent linh hoạt nhưng đắt đỏ. "
+TC05,"Trong 9 trường của Problem Statement, ""Bottleneck"" (Nút thắt) dùng để xác định điều gì?",(Lượt 5) Xác định xem chúng ta có đủ chi phí để mua server chạy AI không.,"""Đã qua 5 lượt, mình giải thích luôn nhé. 'Bottleneck' dùng để xác định khâu 
+nào trong quy trình hiện tại đang bị chậm trễ, lặp lại hoặc dễ sai sót nhất, từ 
+đó tìm ra điểm cần AI can thiệp. "

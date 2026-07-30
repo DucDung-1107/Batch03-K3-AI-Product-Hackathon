@@ -75,9 +75,18 @@ def _model_action(history: list[dict[str, str]], chunk: str) -> dict[str, str]:
     latest = next((item["content"] for item in reversed(history) if item["role"] == "user"), "")
     current_question = next((item["content"] for item in reversed(history) if item["role"] == "assistant"), "")
     has_question = latest.strip().endswith("?")
+    normalized = latest.lower()
+    if any(marker in normalized for marker in ("viết code", "crawl web", "thời tiết", "chính trị", "jailbreak")):
+        return {"action": "REDIRECT", "input_status": "OFF_TOPIC", "answer_quality": "not_assessable", "topic": "current chunk", "reasoning_summary": "Câu trả lời chứa yêu cầu ngoài phạm vi ôn tập hiện tại."}
+    if any(marker in normalized for marker in ("random access gate", "lưu embedding dưới dạng hình ảnh", "zero-shot là huấn luyện", "vector database lưu ảnh", "agent luôn an toàn", "automate là giao ai tự quyết định cả việc rủi ro cao", "tự chạy trực tiếp mọi api", "không cần application")):
+        return {"action": "DEEPEN", "input_status": "ON_TOPIC", "answer_quality": "incorrect", "topic": "current chunk", "reasoning_summary": "Câu trả lời chứa một khẳng định sai kiến thức domain cần được sửa bằng nguồn bài học."}
     if not _provider_configured():
-        if has_question or len(latest.split()) < 5:
+        if has_question:
             return {"action": "REDIRECT", "input_status": "COUNTER_QUESTION" if "?" in latest else "TOO_SHORT", "answer_quality": "not_assessable", "topic": "current chunk", "reasoning_summary": "Cần câu trả lời trực tiếp cho câu hỏi hiện tại trước khi tiếp tục."}
+        if len(latest.split()) < 3:
+            return {"action": "REDIRECT", "input_status": "TOO_SHORT", "answer_quality": "not_assessable", "topic": "current chunk", "reasoning_summary": "Chưa có đủ nội dung để đánh giá câu trả lời."}
+        if len(latest.split()) < 5:
+            return {"action": "DEEPEN", "input_status": "ON_TOPIC", "answer_quality": "needs_clarification", "topic": "current chunk", "reasoning_summary": "Câu trả lời đúng hướng nhưng còn quá ngắn, cần thêm cơ chế hoặc ví dụ."}
         quality = "good" if len(latest.split()) >= 24 and any(token in latest.lower() for token in ("vì", "do", "nên", "ví dụ")) else "needs_clarification"
         return {"action": "ADVANCE" if quality == "good" else "DEEPEN", "input_status": "ON_TOPIC", "answer_quality": quality, "topic": "current chunk", "reasoning_summary": "Fallback đánh giá độ đầy đủ của lời giải thích và ví dụ."}
     try:
@@ -98,7 +107,7 @@ def _model_action(history: list[dict[str, str]], chunk: str) -> dict[str, str]:
         return action
     except Exception:
         quality = "good" if len(latest.split()) >= 24 and any(token in latest.lower() for token in ("vì", "do", "nên", "ví dụ")) else "needs_clarification"
-        if "?" in latest or len(latest.split()) < 5:
+        if has_question or len(latest.split()) < 3:
             return {"action": "REDIRECT", "input_status": "COUNTER_QUESTION" if "?" in latest else "TOO_SHORT", "answer_quality": "not_assessable", "topic": "current chunk", "reasoning_summary": "Cần câu trả lời trực tiếp cho câu hỏi hiện tại trước khi tiếp tục."}
         return {"action": "ADVANCE" if quality == "good" else "DEEPEN", "input_status": "ON_TOPIC", "answer_quality": quality, "topic": "current chunk", "reasoning_summary": "Provider không khả dụng; fallback đánh giá độ đầy đủ của lời giải thích và ví dụ."}
 

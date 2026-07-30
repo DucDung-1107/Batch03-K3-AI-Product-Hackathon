@@ -1,0 +1,21 @@
+{
+  "run_at": "2026-07-30T16:59:59.552039+00:00",
+  "golden_set": "2026-07-30.v2",
+  "mode": "offline fallback through agent_service.react_agent.run_react_turn",
+  "total_cases": 20,
+  "passed": 20,
+  "failed": 0,
+  "pass_rate": 1.0,
+  "quality_bar": {
+    "pass_rate": 0.85,
+    "no_severe_hallucination": true,
+    "expected_labels": [
+      "good",
+      "needs_clarification",
+      "incorrect",
+      "not_assessable"
+    ]
+  },
+  "quality_bar_passed": true,
+  "failed_cases": []
+}
