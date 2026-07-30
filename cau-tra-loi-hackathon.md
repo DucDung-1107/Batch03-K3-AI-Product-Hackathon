@@ -1,4 +1,4 @@
-# Câu trả lời nộp Hackathon — Nhóm NeuRon
+# Câu trả lời nộp Hackathon — Nhóm VeuRon
 
 ## 1. Con số bằng chứng mạnh nhất của nhóm là gì?
 

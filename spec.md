@@ -1,4 +1,4 @@
-# AI SPEC — FeynMind (Feynman Bot & Mindmap Neuron) · Nhóm NeuRon
+# AI SPEC — FeynMind (Feynman Bot & Mindmap Neuron) · Nhóm VeuRon
 Hướng: [x] A — VLearn  [ ] B — Trợ lý Học viên  [ ] C — Làn mở
 Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 
