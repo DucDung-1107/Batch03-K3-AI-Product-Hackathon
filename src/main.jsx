@@ -459,6 +459,93 @@ function MindMap({ topic, graph, onNodeClick, recallEnabled, setRecallEnabled, v
   return <div className="map-card map-card-full"><div className="map-header"><div><div className="eyebrow">{topic.id} / NEURAL MAP</div><h2>Kéo node, phóng to và tự mở rộng ý</h2></div><div className="map-header-right"><div className="progress">{nodes.length} / {graph?.totalNodes || nodes.length} node hiện</div><div className="recall-toggle-row"><span className="toggle-label">BẮT BUỘC RECALL</span><button className={`switch ${recallEnabled ? 'on' : 'off'}`} onClick={() => setRecallEnabled(!recallEnabled)} aria-label="Bật tắt yêu cầu trả lời trước khi mở nhánh mới"><span className="slider" /><span className="switch-text">{recallEnabled ? 'ON' : 'OFF'}</span></button></div><div className="graph-controls"><button onClick={() => zoom(-0.1)} aria-label="Thu nhỏ">−</button><span>{Math.round(viewport.scale * 100)}%</span><button onClick={() => zoom(0.1)} aria-label="Phóng to">+</button><button onClick={reset} aria-label="Đặt lại graph">↺</button></div></div></div><div ref={canvasRef} className="map-canvas graph-canvas graph-canvas-full" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag}><div className="graph-stage" style={{ transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.scale})` }}><svg className="graph-edges" viewBox="0 0 1100 620" aria-hidden="true">{edges.map(edge => { const source = nodeMap[edge.source]; const target = nodeMap[edge.target]; return source && target ? <path key={`${edge.source}-${edge.target}`} className="edge edge-live" d={pathFor(source, target)} /> : null; })}<circle className="edge-orb" cx={orbX} cy={orbY} r="5" /></svg>{nodes.map((node, index) => { const position = positionOf(node); const isLeaf = node.isLeaf ?? !node.hasChildren; return <button key={node.id} className={`graph-node ${node.id === graph.rootId ? 'core' : `branch branch-${index % 3 + 1}`} ${isLeaf ? 'leaf' : 'expandable'} ${drag.current?.nodeId === node.id ? 'dragging' : ''}`} style={{ left: position.x, top: position.y, width: position.width, minHeight: position.height, borderLeft: node.id === graph.rootId ? undefined : '4px solid ' + ['#4ade80', '#3b82f6', '#ec4899', '#f59e0b', '#a855f7', '#14b8a6'][index % 6] }} onPointerDown={event => onNodePointerDown(event, node)} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } onNodeClick(node); }}><span className="node-eyebrow">{node.eyebrow}</span><span className="node-title">{node.label}</span><span className="node-caption">{node.caption}</span><span className="node-pulse" /></button>; })}</div></div></div>;
 }
 
+function parseBold(text) {
+  if (typeof text !== 'string') return text;
+  const parts = [];
+  const boldRegex = /\*\*(.*?)\*\*/g;
+  let match;
+  let lastIndex = 0;
+
+  while ((match = boldRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.substring(lastIndex, match.index));
+    }
+    parts.push(<strong key={match.index} style={{ fontWeight: '700' }}>{match[1]}</strong>);
+    lastIndex = boldRegex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : text;
+}
+
+function renderFormattedText(text) {
+  if (!text) return null;
+
+  const lines = text.split('\n');
+  const elements = [];
+
+  lines.forEach((line, idx) => {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      elements.push(<div key={`space-${idx}`} style={{ height: '8px' }} />);
+      return;
+    }
+
+    // Check for headers (e.g. ## Header or ### Header)
+    const headerMatch = line.match(/^(#{1,6})\s+(.*)$/);
+    if (headerMatch) {
+      const level = headerMatch[1].length;
+      const content = headerMatch[2];
+      const Tag = level === 1 ? 'h3' : level === 2 ? 'h4' : 'h5';
+      elements.push(
+        <Tag key={`h-${idx}`} style={{ margin: '12px 0 6px 0', fontSize: level === 1 ? '16px' : level === 2 ? '14px' : '12px', fontWeight: '700' }}>
+          {parseBold(content)}
+        </Tag>
+      );
+      return;
+    }
+
+    // Check for bullet points (e.g. - item or * item)
+    const listMatch = line.match(/^[-*+]\s+(.*)$/);
+    if (listMatch) {
+      const content = listMatch[1];
+      elements.push(
+        <div key={`li-${idx}`} style={{ display: 'flex', gap: '6px', margin: '4px 0 4px 12px', alignItems: 'flex-start' }}>
+          <span style={{ flexShrink: 0 }}>•</span>
+          <div style={{ flex: 1 }}>{parseBold(content)}</div>
+        </div>
+      );
+      return;
+    }
+
+    // Check for numbered list (e.g. 1. item)
+    const numListMatch = line.match(/^(\d+)\.\s+(.*)$/);
+    if (numListMatch) {
+      const num = numListMatch[1];
+      const content = numListMatch[2];
+      elements.push(
+        <div key={`num-${idx}`} style={{ display: 'flex', gap: '6px', margin: '4px 0 4px 12px', alignItems: 'flex-start' }}>
+          <span style={{ fontWeight: 'bold', flexShrink: 0 }}>{num}.</span>
+          <div style={{ flex: 1 }}>{parseBold(content)}</div>
+        </div>
+      );
+      return;
+    }
+
+    // Regular line
+    elements.push(
+      <p key={`p-${idx}`} style={{ margin: '4px 0', lineHeight: '1.5' }}>
+        {parseBold(line)}
+      </p>
+    );
+  });
+
+  return elements;
+}
+
 function LegacyRecallPartner({ lecture }) {
   const [answer, setAnswer] = useState('');
   const [isMinimized, setIsMinimized] = useState(false);
@@ -529,7 +616,7 @@ function LegacyRecallPartner({ lecture }) {
         {messages.map(msg => (
           <div key={msg.id} className={`chat-message-row ${msg.sender === 'user' ? 'user' : ''}`}>
             {msg.sender === 'ai' && <div className="chat-avatar">◕‿◕</div>}
-            <div className={`bubble ${msg.sender === 'user' ? 'user' : ''}`}>{msg.text}</div>
+            <div className={`bubble ${msg.sender === 'user' ? 'user' : ''}`}>{renderFormattedText(msg.text)}</div>
           </div>
         ))}
         {isTyping && (
@@ -726,7 +813,7 @@ function RecallPartner({ lecture, setActiveTopic, panelMode, setPanelMode, panel
               </div>
             )}
             <div className={`bubble ${msg.sender === 'user' ? 'user' : ''}`}>
-              {msg.text}
+              {renderFormattedText(msg.text)}
             </div>
           </div>
         ))}
@@ -794,7 +881,7 @@ function LibraryView({ orderedLectures, moveLecture, selectedId, setSelectedId }
   const [query, setQuery] = useState('');
   const visible = orderedLectures.filter(lecture => `${lecture.title} ${lecture.tag} ${lecture.summary}`.toLowerCase().includes(query.toLowerCase()));
   const selected = orderedLectures.find(lecture => lecture.id === selectedId) || visible[0];
-  return <main className="page-main" id="library"><div className="page-heading"><div><div className="eyebrow">LIBRARY / 05 BÀI GIẢNG</div><h1>Kho kiến thức<br /><em>đã nộp.</em></h1></div><p>Mỗi thanh là một bài giảng thật trong thư mục BÀI GIẢNG. Sắp xếp thứ tự học, mở ra để đọc nội dung và xem lịch ôn tự động.</p></div><div className="library-toolbar"><div className="library-count"><strong>{orderedLectures.length}</strong><span>bài giảng trong lộ trình</span></div><label className="search-box">⌕<input value={query} onChange={e => setQuery(e.target.value)} placeholder="Tìm bài giảng…" /></label></div><div className="library-layout"><section className="lecture-list">{visible.map((lecture, index) => <article className={`lecture-row ${selected?.id === lecture.id ? 'selected' : ''}`} key={lecture.id} onClick={() => setSelectedId(lecture.id)}><div className="lecture-index">{String(index + 1).padStart(2, '0')}</div><div className="lecture-main"><div className="lecture-meta"><span>{lecture.tag}</span><span>{lecture.duration}</span></div><h3>{lecture.title}</h3><p>{lecture.summary}</p><div className="lecture-status">{lecture.learnedAt ? <><i className="status-dot done" />Đã học · {formatDate(new Date(lecture.learnedAt))}</> : <><i className="status-dot next" />Sắp học theo lộ trình</>}</div></div><div className="row-controls"><button onClick={e => { e.stopPropagation(); moveLecture(index, -1); }} disabled={index === 0} aria-label="Đưa lên">↑</button><button onClick={e => { e.stopPropagation(); moveLecture(index, 1); }} disabled={index === visible.length - 1} aria-label="Đưa xuống">↓</button><span>↗</span></div></article>)}</section>{selected && <aside className="lecture-detail"><div className="detail-kicker">{selected.id} / BÀI GIẢNG</div><h2>{selected.title}</h2><div className="detail-info"><span>{selected.day}</span><span>{selected.duration}</span><span>{selected.tag}</span></div><div className="detail-rule" /><p className="detail-summary">{selected.summary}</p><div className="text-label">NỘI DUNG BÀI GIẢNG</div><p className="lecture-text">{selected.content}</p><div className="source-file">⌁ {selected.file}<span>đã đọc từ data pack</span></div></aside>}</div><div className="library-tip"><span>✦</span><div><strong>Gợi ý học thông minh</strong><p>Đọc lướt nội dung trước, sau đó đóng tài liệu và để Minh hỏi lại. Việc tự gọi lại giúp biến “đã xem” thành “đã nhớ”.</p></div></div></main>;
+  return <main className="page-main" id="library"><div className="page-heading"><div><div className="eyebrow">LIBRARY / 05 BÀI GIẢNG</div><h1>Kho kiến thức<br /><em>đã nộp.</em></h1></div></div><div className="library-toolbar"><div className="library-count"><strong>{orderedLectures.length}</strong><span>bài giảng trong lộ trình</span></div><label className="search-box">⌕<input value={query} onChange={e => setQuery(e.target.value)} placeholder="Tìm bài giảng…" /></label></div><div className="library-layout"><section className="lecture-list">{visible.map((lecture, index) => <article className={`lecture-row ${selected?.id === lecture.id ? 'selected' : ''}`} key={lecture.id} onClick={() => setSelectedId(lecture.id)}><div className="lecture-index">{String(index + 1).padStart(2, '0')}</div><div className="lecture-main"><div className="lecture-meta"><span>{lecture.tag}</span><span>{lecture.duration}</span></div><h3>{lecture.title}</h3><p>{lecture.summary}</p><div className="lecture-status">{lecture.learnedAt ? <><i className="status-dot done" />Đã học · {formatDate(new Date(lecture.learnedAt))}</> : <><i className="status-dot next" />Sắp học theo lộ trình</>}</div></div><div className="row-controls"><button onClick={e => { e.stopPropagation(); moveLecture(index, -1); }} disabled={index === 0} aria-label="Đưa lên">↑</button><button onClick={e => { e.stopPropagation(); moveLecture(index, 1); }} disabled={index === visible.length - 1} aria-label="Đưa xuống">↓</button><span>↗</span></div></article>)}</section>{selected && <aside className="lecture-detail"><div className="detail-kicker">{selected.id} / BÀI GIẢNG</div><h2>{selected.title}</h2><div className="detail-info"><span>{selected.day}</span><span>{selected.duration}</span><span>{selected.tag}</span></div><div className="detail-rule" /><p className="detail-summary">{selected.summary}</p><div className="text-label">NỘI DUNG BÀI GIẢNG</div><p className="lecture-text">{selected.content}</p><div className="source-file">⌁ {selected.file}<span>đã đọc từ data pack</span></div></aside>}</div><div className="library-tip"><span>✦</span><div><strong>Gợi ý học thông minh</strong><p>Đọc lướt nội dung trước, sau đó đóng tài liệu và để Minh hỏi lại. Việc tự gọi lại giúp biến “đã xem” thành “đã nhớ”.</p></div></div></main>;
 }
 
 function ReviewView({ orderedLectures, onStartRecall, completedReviews = [] }) {
@@ -823,9 +910,10 @@ function ReviewView({ orderedLectures, onStartRecall, completedReviews = [] }) {
   const schedule = orderedLectures.flatMap((lecture, index) => spacing.map((gap, reviewIndex) => ({ lecture, reviewIndex, date: addDays(new Date(lecture.learnedAt || addDays(base, index)), gap) }))).sort((a, b) => a.date - b.date);
   const today = new Date('2026-07-30T12:00:00');
   const due = schedule.filter(item => item.date <= today).slice(0, 3);
-  return <main className="page-main" id="review"><div className="page-heading"><div><div className="eyebrow">REVIEW ENGINE / SPACED RECALL</div><h1>Lịch ôn<br /><em>tự chạy.</em></h1></div><p>Lịch lấy đúng 5 bài trong Thư viện và ngày học thực tế. Mỗi bài quay lại theo nhịp 1 · 3 · 7 · 14 · 30 ngày để Minh chủ động hỏi bạn.</p></div><section className="review-overview"><div className="next-review"><div className="eyebrow" style={{ fontVariantNumeric: 'tabular-nums' }}>{formatRealtimeDate(now)}</div><h2>{due.length ? `${due.length} lượt recall đang chờ` : 'Bạn đã hoàn thành lịch hôm nay'}</h2><p>{due.length ? `Minh sẽ bắt đầu bằng bài “${due[0].lecture.title}”.` : 'Lịch mới sẽ tự xuất hiện sau bài học tiếp theo.'}</p><button className="button primary" onClick={() => setReminder(value => !value)}>{reminder ? '✓ AI đang nhắc lúc 19:30' : 'Bật AI chủ động nhắc'}</button></div><div className="method-card"><span className="method-icon">↗</span><div><strong>Nhịp giãn cách mặc định</strong><p>Ngày học → +1 → +3 → +7 → +14 → +30 ngày</p><small>Dùng các lần active recall ở khoảng cách tăng dần; nếu trả lời sai, có thể đưa bài về phiên gần hơn.</small></div></div></section><div className="review-section-head"><div><div className="eyebrow">YOUR TIMELINE</div><h2>Dòng thời gian ghi nhớ</h2></div><span>{schedule.length} phiên đã lên lịch</span></div><section className="timeline">{schedule.slice(0, 14).map((item, index) => {
-  const isCompleted = completedReviews.includes(item.lecture.id) || item.date <= new Date('2026-07-30T23:59:59');
-  return <article className={`timeline-item ${item.date <= today && !isCompleted ? 'due' : ''} ${isCompleted ? 'completed' : ''}`} key={`${item.lecture.id}-${item.reviewIndex}`}><div className="timeline-date"><strong>{formatDate(item.date)}</strong><span>{isCompleted ? 'ĐÃ ÔN TẬP' : (item.date <= today ? 'CẦN ÔN TẬP' : `LẦN ${item.reviewIndex + 1}`)}</span></div><div className="timeline-connector"><i /></div><div className="timeline-content"><span>{item.lecture.id} · {item.lecture.tag}</span><h3>{item.lecture.title}</h3><p>{item.reviewIndex === 0 ? 'Recall nhanh: nói lại ý chính trong 60 giây.' : item.reviewIndex === 1 ? 'Giải thích lại bằng ví dụ của chính bạn.' : 'Kết nối bài này với một bài đã học trước.'}</p></div><button className={`ask-button ${isCompleted ? 'completed' : ''}`} onClick={() => !isCompleted && onStartRecall && onStartRecall(item.lecture)} disabled={isCompleted}>{isCompleted ? 'Đã ôn tập ✓' : 'Minh hỏi →'}</button></article>})}</section><div className="science-note">Lịch này là prototype dựa trên nguyên tắc học ngắt quãng, không phải khuyến nghị y khoa hay bảo đảm cho mọi người học. <a href="https://www.learningscientists.org/blog/2018/7/5-1" target="_blank" rel="noreferrer">Đọc cơ sở thiết kế ↗</a></div></main>;
+  return <main className="page-main" id="review"><div className="page-heading"><div><div className="eyebrow">REVIEW ENGINE / SPACED RECALL</div><h1>Lịch ôn<br /><em>tự chạy.</em></h1></div></div><section className="review-overview"><div className="next-review"><div className="eyebrow" style={{ fontVariantNumeric: 'tabular-nums' }}>{formatRealtimeDate(now)}</div><h2>{due.length ? `${due.length} lượt recall đang chờ` : 'Bạn đã hoàn thành lịch hôm nay'}</h2><p>{due.length ? `Minh sẽ bắt đầu bằng bài “${due[0].lecture.title}”.` : 'Lịch mới sẽ tự xuất hiện sau bài học tiếp theo.'}</p><button className="button primary" onClick={() => setReminder(value => !value)}>{reminder ? '✓ AI đang nhắc lúc 19:30' : 'Bật AI chủ động nhắc'}</button></div><div className="method-card"><span className="method-icon">↗</span><div><strong>Nhịp giãn cách mặc định</strong><p>Ngày học → +1 → +3 → +7 → +14 → +30 ngày</p><small>Dùng các lần active recall ở khoảng cách tăng dần; nếu trả lời sai, có thể đưa bài về phiên gần hơn.</small></div></div></section><div className="review-section-head"><div><div className="eyebrow">YOUR TIMELINE</div><h2>Dòng thời gian ghi nhớ</h2></div><span>{schedule.length} phiên đã lên lịch</span></div><section className="timeline">{schedule.slice(0, 14).map((item, index) => {
+    const isCompleted = completedReviews.includes(item.lecture.id) || item.date <= new Date('2026-07-30T23:59:59');
+    return <article className={`timeline-item ${item.date <= today && !isCompleted ? 'due' : ''} ${isCompleted ? 'completed' : ''}`} key={`${item.lecture.id}-${item.reviewIndex}`}><div className="timeline-date"><strong>{formatDate(item.date)}</strong><span>{isCompleted ? 'ĐÃ ÔN TẬP' : (item.date <= today ? 'CẦN ÔN TẬP' : `LẦN ${item.reviewIndex + 1}`)}</span></div><div className="timeline-connector"><i /></div><div className="timeline-content"><span>{item.lecture.id} · {item.lecture.tag}</span><h3>{item.lecture.title}</h3><p>{item.reviewIndex === 0 ? 'Recall nhanh: nói lại ý chính trong 60 giây.' : item.reviewIndex === 1 ? 'Giải thích lại bằng ví dụ của chính bạn.' : 'Kết nối bài này với một bài đã học trước.'}</p></div><button className={`ask-button ${isCompleted ? 'completed' : ''}`} onClick={() => !isCompleted && onStartRecall && onStartRecall(item.lecture)} disabled={isCompleted}>{isCompleted ? 'Đã ôn tập ✓' : 'Minh hỏi →'}</button></article>
+  })}</section><div className="science-note">Lịch này là prototype dựa trên nguyên tắc học ngắt quãng, không phải khuyến nghị y khoa hay bảo đảm cho mọi người học. <a href="https://www.learningscientists.org/blog/2018/7/5-1" target="_blank" rel="noreferrer">Đọc cơ sở thiết kế ↗</a></div></main>;
 }
 
 function App() {
@@ -851,7 +939,7 @@ function App() {
       const next = [...prev, lessonId];
       try {
         localStorage.setItem('completedReviews', JSON.stringify(next));
-      } catch (e) {}
+      } catch (e) { }
       return next;
     });
   };
